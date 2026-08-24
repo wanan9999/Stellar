@@ -169,14 +169,10 @@
     <string name="port_set_to">端口已设置为 %s</string>
     <string name="service_logs">服务日志</string>
     <string name="service_logs_subtitle">查看 Stellar 服务运行日志</string>
-    <string name="already_latest_version">已是最新版本</string>
-    <string name="check_update_failed">检查更新失败</string>
     <string name="project_declaration">项目声明</string>
     <string name="project_declaration_content">本项目基于 Shizuku 开发。Shizuku 是一个优秀的开源项目，提供了通过 ADB 或 Root 调用系统 API 的能力。</string>
     <string name="cannot_open_browser">无法打开浏览器</string>
-    <string name="check_update">检查更新</string>
     <string name="current_version">当前版本: %s</string>
-    <string name="checking">检查中...</string>
 
     <!-- Logs Screen -->
     <string name="service_not_running_toast">服务未运行</string>
@@ -365,16 +361,6 @@
     <string name="adb_connection_failed">ADB连接失败 %1$s:%2$d</string>
 
     <string name="logs_app_not_running">该应用在本次服务启动期间未运行，无可用日志。</string>
-
-    <!-- Update -->
-    <string name="new_version_title">发现新版本 v%s</string>
-    <string name="go_to_download">浏览器下载</string>
-    <string name="no_download_available">暂无下载链接</string>
-    <string name="select_update_source">选择更新源</string>
-    <string name="long_press_switch_source">长按切换更新源</string>
-    <string name="install">安装</string>
-    <string name="downloading">下载中</string>
-    <string name="download_failed">下载失败: %s</string>
 
     <string name="carrier_service_ready">Stellar 服务已运行，运营商覆盖将通过内置 UserService 写入。</string>
     <string name="carrier_service_missing">Stellar 服务未运行。请先在「启动」页完成 ADB 配对或 Root 启动。</string>

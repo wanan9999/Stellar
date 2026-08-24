@@ -167,14 +167,10 @@
     <string name="port_set_to">連接埠已設定為 %s</string>
     <string name="service_logs">服務日誌</string>
     <string name="service_logs_subtitle">檢視 Stellar 服務執行日誌</string>
-    <string name="already_latest_version">已是最新版本</string>
-    <string name="check_update_failed">檢查更新失敗</string>
     <string name="project_declaration">專案聲明</string>
     <string name="project_declaration_content">本專案基於 Shizuku 開發。Shizuku 是一個優秀的開源專案，提供了透過 ADB 或 Root 呼叫系統 API 的能力。</string>
     <string name="cannot_open_browser">無法開啟瀏覽器</string>
-    <string name="check_update">檢查更新</string>
     <string name="current_version">目前版本: %s</string>
-    <string name="checking">檢查中...</string>
 
     <!-- Logs Screen -->
     <string name="service_not_running_toast">服務未執行</string>
@@ -358,14 +354,4 @@
     <string name="adb_connection_failed">ADB 連線失敗 %1$s:%2$d</string>
 
     <string name="logs_app_not_running">該應用在本次服務啟動期間未執行，無可用日誌。</string>
-
-    <!-- Update -->
-    <string name="new_version_title">發現新版本 v%s</string>
-    <string name="go_to_download">瀏覽器下載</string>
-    <string name="no_download_available">暫無下載連結</string>
-    <string name="select_update_source">選擇更新來源</string>
-    <string name="long_press_switch_source">長按切換更新來源</string>
-    <string name="install">安裝</string>
-    <string name="downloading">下載中</string>
-    <string name="download_failed">下載失敗: %s</string>
 </resources>

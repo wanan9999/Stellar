@@ -167,14 +167,10 @@
     <string name="port_set_to">Порт установлен на %s</string>
     <string name="service_logs">Журнал сервиса</string>
     <string name="service_logs_subtitle">Просмотр журнала сервиса Stellar</string>
-    <string name="already_latest_version">Уже последняя версия</string>
-    <string name="check_update_failed">Ошибка проверки обновлений</string>
     <string name="project_declaration">Благодарности</string>
     <string name="project_declaration_content">Этот проект основан на Shizuku — отличном проекте с открытым исходным кодом, предоставляющем возможность вызова системных API через ADB или Root.</string>
     <string name="cannot_open_browser">Не удалось открыть браузер</string>
-    <string name="check_update">Проверить обновления</string>
     <string name="current_version">Текущая версия: %s</string>
-    <string name="checking">Проверка…</string>
 
     <!-- Logs Screen -->
     <string name="service_not_running_toast">Сервис не запущен</string>
@@ -358,14 +354,4 @@
     <string name="adb_connection_failed">Ошибка подключения ADB %1$s:%2$d</string>
 
     <string name="logs_app_not_running">Приложение не запускалось за время этой сессии сервиса, журналы недоступны.</string>
-
-    <!-- Update -->
-    <string name="new_version_title">Новая версия v%s</string>
-    <string name="go_to_download">Открыть в браузере</string>
-    <string name="no_download_available">Нет доступных загрузок</string>
-    <string name="select_update_source">Выбрать источник обновления</string>
-    <string name="long_press_switch_source">Долгое нажатие для смены источника</string>
-    <string name="install">Установить</string>
-    <string name="downloading">Загрузка</string>
-    <string name="download_failed">Ошибка загрузки: %s</string>
 </resources>

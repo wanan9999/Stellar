@@ -20,35 +20,27 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Subject
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Replay
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.SettingsEthernet
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.BasicAlertDialog
@@ -57,7 +49,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -69,14 +60,12 @@ import androidx.compose.material3.TopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -87,7 +76,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import com.topjohnwu.superuser.Shell
-import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -126,11 +114,6 @@ import roro.stellar.manager.util.EnvironmentUtils
 import roro.stellar.manager.util.BackgroundVisibilityUtils
 import roro.stellar.manager.util.PortBlacklistUtils
 import roro.stellar.manager.util.UserHandleCompat
-import roro.stellar.manager.util.update.ApkDownloader
-import roro.stellar.manager.util.update.AppUpdate
-import roro.stellar.manager.util.update.DownloadState
-import roro.stellar.manager.util.update.UpdateSource
-import roro.stellar.manager.util.update.UpdateUtils
 import java.util.concurrent.TimeUnit
 
 private const val TAG = "SettingsScreen"
@@ -146,7 +129,6 @@ fun SettingsScreen(
     val context = LocalContext.current
     val componentName = ComponentName(context.packageName, BootCompleteReceiver::class.java.name)
     val screenConfig = LocalScreenConfig.current
-    val isLandscape = screenConfig.isLandscape
     val gridColumns = screenConfig.gridColumns
 
     val preferences = StellarSettings.getPreferences()
@@ -164,7 +146,6 @@ fun SettingsScreen(
     var showAccessibilityHintDialog by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
-    var currentSource by remember { mutableStateOf<UpdateSource?>(null) }
     var isServiceRunning by remember { mutableStateOf(Stellar.pingBinder()) }
     var bootAdbStartAvailable by remember { mutableStateOf<Boolean?>(null) }
 
@@ -200,7 +181,6 @@ fun SettingsScreen(
                 StellarSettings.setBootMode(StellarSettings.BootMode.NONE)
             }
         }
-        currentSource = UpdateUtils.getPreferredSource()
     }
 
     var tcpipPort by remember {
@@ -252,33 +232,6 @@ fun SettingsScreen(
         applyBootMode(context, componentName, newMode, previousMode, scope) {
             if (newMode == StellarSettings.BootMode.BROADCAST) {
                 showBootGuideDialog = true
-            }
-        }
-    }
-
-    var isCheckingUpdate by remember { mutableStateOf(false) }
-    var pendingUpdate by remember { mutableStateOf<AppUpdate?>(null) }
-    var showUpdateDialog by remember { mutableStateOf(false) }
-    var showSourceDialog by remember { mutableStateOf(false) }
-    var isDownloading by remember { mutableStateOf(false) }
-    var downloadProgress by remember { mutableIntStateOf(0) }
-    var downloadError by remember { mutableStateOf<String?>(null) }
-
-    val performCheckUpdate: (UpdateSource?) -> Unit = { source ->
-        isCheckingUpdate = true
-        scope.launch {
-            try {
-                val update = UpdateUtils.checkUpdate(source)
-                if (update != null && update.versionCode > BuildConfig.VERSION_CODE) {
-                    pendingUpdate = update
-                    showUpdateDialog = true
-                } else {
-                    Toast.makeText(context, context.getString(R.string.already_latest_version), Toast.LENGTH_SHORT).show()
-                }
-            } catch (_: Exception) {
-                Toast.makeText(context, context.getString(R.string.check_update_failed), Toast.LENGTH_SHORT).show()
-            } finally {
-                isCheckingUpdate = false
             }
         }
     }
@@ -717,48 +670,12 @@ fun SettingsScreen(
             }
 
             item(span = { GridItemSpan(gridColumns) }) {
-                if (isLandscape) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(IntrinsicSize.Max),
-                        horizontalArrangement = Arrangement.spacedBy(AppSpacing.cardSpacing)
-                    ) {
-                        SettingsClickableCard(
-                            icon = Icons.AutoMirrored.Filled.Subject,
-                            title = stringResource(R.string.service_logs),
-                            subtitle = stringResource(R.string.service_logs_subtitle),
-                            onClick = onNavigateToLogs,
-                            modifier = Modifier.weight(1f).fillMaxHeight()
-                        )
-
-                        UpdateCard(
-                            isCheckingUpdate = isCheckingUpdate,
-                            onCheckUpdate = { performCheckUpdate(null) },
-                            onLongClick = { showSourceDialog = true },
-                            currentSource = currentSource,
-                            modifier = Modifier.weight(1f).fillMaxHeight()
-                        )
-                    }
-                } else {
-                    SettingsClickableCard(
-                        icon = Icons.AutoMirrored.Filled.Subject,
-                        title = stringResource(R.string.service_logs),
-                        subtitle = stringResource(R.string.service_logs_subtitle),
-                        onClick = onNavigateToLogs
-                    )
-                }
-            }
-
-            if (!isLandscape) {
-                item {
-                    UpdateCard(
-                        isCheckingUpdate = isCheckingUpdate,
-                        onCheckUpdate = { performCheckUpdate(null) },
-                        onLongClick = { showSourceDialog = true },
-                        currentSource = currentSource
-                    )
-                }
+                SettingsClickableCard(
+                    icon = Icons.AutoMirrored.Filled.Subject,
+                    title = stringResource(R.string.service_logs),
+                    subtitle = stringResource(R.string.service_logs_subtitle),
+                    onClick = onNavigateToLogs
+                )
             }
 
             item(span = { GridItemSpan(gridColumns) }) {
@@ -800,6 +717,11 @@ fun SettingsScreen(
                                  text = stringResource(R.string.project_declaration),
                                  style = MaterialTheme.typography.titleMedium,
                                  fontWeight = FontWeight.Bold
+                             )
+                             Text(
+                                 text = stringResource(R.string.current_version, BuildConfig.VERSION_NAME),
+                                 style = MaterialTheme.typography.bodySmall,
+                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                              )
                          }
                      }
@@ -864,70 +786,6 @@ fun SettingsScreen(
             }
             }
         }
-    }
-
-    if (showUpdateDialog && pendingUpdate != null) {
-        NewVersionDialog(
-            update = pendingUpdate!!,
-            isDownloading = isDownloading,
-            downloadProgress = downloadProgress,
-            downloadError = downloadError,
-            onDismiss = {
-                if (!isDownloading) {
-                    showUpdateDialog = false
-                    downloadError = null
-                }
-            },
-            onDownload = {
-                val url = pendingUpdate!!.downloadUrl
-                if (url.isNotEmpty()) {
-                    isDownloading = true
-                    downloadProgress = 0
-                    downloadError = null
-                    scope.launch {
-                        ApkDownloader.download(context, url, "stellar_${pendingUpdate!!.versionName}.apk").collect { state ->
-                            when (state) {
-                                is DownloadState.Progress -> downloadProgress = state.progress
-                                is DownloadState.Success -> {
-                                    isDownloading = false
-                                    showUpdateDialog = false
-                                    ApkDownloader.installApk(context, state.file)
-                                }
-                                is DownloadState.Error -> {
-                                    isDownloading = false
-                                    downloadError = state.message
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    Toast.makeText(context, context.getString(R.string.no_download_available), Toast.LENGTH_SHORT).show()
-                }
-            },
-            onOpenBrowser = {
-                showUpdateDialog = false
-                downloadError = null
-                val url = pendingUpdate!!.downloadUrl
-                if (url.isNotEmpty()) {
-                    try {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
-                    } catch (_: Exception) {
-                        Toast.makeText(context, context.getString(R.string.cannot_open_browser), Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        )
-    }
-
-    if (showSourceDialog) {
-        UpdateSourceDialog(
-            onDismiss = { showSourceDialog = false },
-            onSourceSelected = { source ->
-                showSourceDialog = false
-                currentSource = source
-                performCheckUpdate(source)
-            }
-        )
     }
 
     if (showAccessibilityHintDialog) {
@@ -1227,279 +1085,6 @@ private fun applyBootMode(
             withContext(Dispatchers.Main) { onSuccess() }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to apply boot mode $newMode", e)
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun UpdateCard(
-    isCheckingUpdate: Boolean,
-    onCheckUpdate: () -> Unit,
-    onLongClick: () -> Unit,
-    currentSource: UpdateSource?,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        ),
-        shape = AppShape.shapes.cardMedium
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(AppShape.shapes.cardMedium)
-                .combinedClickable(
-                    onClick = {},
-                    onLongClick = onLongClick
-                )
-                .padding(16.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = AppShape.shapes.iconSmall
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.SystemUpdate,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-
-                Column(modifier = Modifier.weight(1f)) {
-                    FlowRow(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        itemVerticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.padding(end = 8.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.check_update),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            if (currentSource != null) {
-                                Text(
-                                    text = currentSource.displayName,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier
-                                        .background(
-                                            color = MaterialTheme.colorScheme.primary,
-                                            shape = AppShape.shapes.tag
-                                        )
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Text(
-                                text = stringResource(R.string.long_press_switch_source),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = stringResource(R.string.current_version, BuildConfig.VERSION_NAME),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Button(
-                onClick = onCheckUpdate,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !isCheckingUpdate,
-                shape = AppShape.shapes.buttonMedium
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (isCheckingUpdate) stringResource(R.string.checking) else stringResource(R.string.check_update),
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun NewVersionDialog(
-    update: AppUpdate,
-    isDownloading: Boolean,
-    downloadProgress: Int,
-    downloadError: String?,
-    onDismiss: () -> Unit,
-    onDownload: () -> Unit,
-    onOpenBrowser: () -> Unit
-) {
-    BasicAlertDialog(onDismissRequest = { if (!isDownloading) onDismiss() }) {
-        Surface(
-            shape = AppShape.shapes.dialog,
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            tonalElevation = 6.dp
-        ) {
-            Column(
-                modifier = Modifier.padding(AppSpacing.dialogPadding)
-            ) {
-                Text(
-                    text = stringResource(R.string.new_version_title, update.versionName),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(AppSpacing.sectionSpacing))
-
-                if (update.body.isNotEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 400.dp)
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        MarkdownText(
-                            markdown = update.body,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        )
-                    }
-                }
-
-                AnimatedVisibility(visible = isDownloading || downloadError != null) {
-                    Column(modifier = Modifier.padding(top = AppSpacing.sectionSpacing)) {
-                        if (isDownloading) {
-                            LinearProgressIndicator(
-                                progress = { downloadProgress / 100f },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = stringResource(R.string.downloading) + " $downloadProgress%",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        } else if (downloadError != null) {
-                            Text(
-                                text = stringResource(R.string.download_failed, downloadError),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(AppSpacing.dialogPadding))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TextButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(stringResource(R.string.cancel))
-                    }
-
-                    Button(
-                        onClick = if (downloadError != null) onOpenBrowser else onDownload,
-                        enabled = update.downloadUrl.isNotEmpty() && !isDownloading,
-                        modifier = Modifier.weight(1f),
-                        shape = AppShape.shapes.buttonMedium
-                    ) {
-                        Text(stringResource(if (downloadError != null) R.string.go_to_download else R.string.install))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun UpdateSourceDialog(
-    onDismiss: () -> Unit,
-    onSourceSelected: (UpdateSource) -> Unit
-) {
-    BasicAlertDialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = AppShape.shapes.dialog,
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
-            tonalElevation = 6.dp
-        ) {
-            Column(
-                modifier = Modifier.padding(AppSpacing.dialogPadding)
-            ) {
-                Text(
-                    text = stringResource(R.string.select_update_source),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(AppSpacing.sectionSpacing))
-
-                UpdateSource.entries.forEach { source ->
-                    Button(
-                        onClick = { onSourceSelected(source) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        shape = AppShape.shapes.buttonMedium
-                    ) {
-                        Text(source.displayName)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(AppSpacing.dialogPadding))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = onDismiss) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                }
-            }
         }
     }
 }

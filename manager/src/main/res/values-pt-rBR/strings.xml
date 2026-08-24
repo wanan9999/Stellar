@@ -167,14 +167,10 @@
     <string name="port_set_to">Porta definida como %s</string>
     <string name="service_logs">Logs do serviço</string>
     <string name="service_logs_subtitle">Ver logs do serviço Stellar</string>
-    <string name="already_latest_version">Já está na versão mais recente</string>
-    <string name="check_update_failed">Falha ao verificar atualizações</string>
     <string name="project_declaration">Agradecimentos</string>
     <string name="project_declaration_content">Este projeto foi construído sobre o Shizuku, um excelente projeto de código aberto que permite chamar APIs do sistema via ADB ou Root.</string>
     <string name="cannot_open_browser">Não foi possível abrir o navegador</string>
-    <string name="check_update">Verificar atualizações</string>
     <string name="current_version">Versão atual: %s</string>
-    <string name="checking">Verificando...</string>
 
     <!-- Logs Screen -->
     <string name="service_not_running_toast">Serviço parado</string>
@@ -358,14 +354,4 @@
     <string name="adb_connection_failed">Falha na conexão ADB %1$s:%2$d</string>
 
     <string name="logs_app_not_running">O app não estava em execução durante esta sessão do serviço, não há logs disponíveis.</string>
-
-    <!-- Update -->
-    <string name="new_version_title">Nova versão v%s</string>
-    <string name="go_to_download">Abrir no navegador</string>
-    <string name="no_download_available">Nenhum download disponível</string>
-    <string name="select_update_source">Selecionar fonte de atualização</string>
-    <string name="long_press_switch_source">Pressione e segure para trocar a fonte</string>
-    <string name="install">Instalar</string>
-    <string name="downloading">Baixando</string>
-    <string name="download_failed">Falha no download: %s</string>
 </resources>

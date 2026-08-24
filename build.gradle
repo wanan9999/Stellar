@@ -20,6 +20,6 @@ subprojects {
 apply from: 'api/manifest.gradle'
 
 ext {
-    versionCode = 101000
-    versionName = "1.1"
+    versionCode = (findProperty("versionCode") ?: "101000").toString().toInteger()
+    versionName = (findProperty("versionName") ?: "1.1").toString()
 }

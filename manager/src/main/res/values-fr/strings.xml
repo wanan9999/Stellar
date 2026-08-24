@@ -167,14 +167,10 @@
     <string name="port_set_to">Port défini sur %s</string>
     <string name="service_logs">Journaux du service</string>
     <string name="service_logs_subtitle">Voir les journaux du service Stellar</string>
-    <string name="already_latest_version">Déjà à jour</string>
-    <string name="check_update_failed">Échec de la vérification des mises à jour</string>
     <string name="project_declaration">Remerciements</string>
     <string name="project_declaration_content">Ce projet est basé sur Shizuku, un excellent projet open source qui permet d\'appeler les API système via ADB ou Root.</string>
     <string name="cannot_open_browser">Impossible d\'ouvrir le navigateur</string>
-    <string name="check_update">Vérifier les mises à jour</string>
     <string name="current_version">Version actuelle : %s</string>
-    <string name="checking">Vérification…</string>
 
     <!-- Logs Screen -->
     <string name="service_not_running_toast">Service arrêté</string>
@@ -358,14 +354,4 @@
     <string name="adb_connection_failed">Échec de la connexion ADB %1$s:%2$d</string>
 
     <string name="logs_app_not_running">L\'application n\'était pas en cours d\'exécution pendant cette session de service, aucun journal disponible.</string>
-
-    <!-- Update -->
-    <string name="new_version_title">Nouvelle version v%s</string>
-    <string name="go_to_download">Ouvrir dans le navigateur</string>
-    <string name="no_download_available">Aucun téléchargement disponible</string>
-    <string name="select_update_source">Choisir la source de mise à jour</string>
-    <string name="long_press_switch_source">Appui long pour changer de source</string>
-    <string name="install">Installer</string>
-    <string name="downloading">Téléchargement</string>
-    <string name="download_failed">Échec du téléchargement : %s</string>
 </resources>

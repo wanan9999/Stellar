@@ -171,11 +171,7 @@ dependencies {
 
     implementation managerLibs.appiconloader
 
-    implementation managerLibs.okhttp
-
     implementation managerLibs.capsule
-
-    implementation managerLibs.composeMarkdown
 
     implementation managerLibs.roomRuntime
     implementation managerLibs.roomKtx

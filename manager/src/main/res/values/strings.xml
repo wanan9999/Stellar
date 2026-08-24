@@ -170,14 +170,10 @@
     <string name="port_set_to">Port set to %s</string>
     <string name="service_logs">Service Logs</string>
     <string name="service_logs_subtitle">View Stellar service logs</string>
-    <string name="already_latest_version">Already up to date</string>
-    <string name="check_update_failed">Update check failed</string>
     <string name="project_declaration">Acknowledgement</string>
     <string name="project_declaration_content">This project is built on Shizuku, an excellent open-source project that provides the ability to call system APIs via ADB or Root.</string>
     <string name="cannot_open_browser">Cannot open browser</string>
-    <string name="check_update">Check for Updates</string>
     <string name="current_version">Current version: %s</string>
-    <string name="checking">Checking…</string>
 
     <!-- Logs Screen -->
     <string name="service_not_running_toast">Service not running</string>
@@ -366,16 +362,6 @@
     <string name="adb_connection_failed">ADB connection failed %1$s:%2$d</string>
 
     <string name="logs_app_not_running">App was not running during this service session, no logs available.</string>
-
-    <!-- Update -->
-    <string name="new_version_title">New Version v%s</string>
-    <string name="go_to_download">Open in Browser</string>
-    <string name="no_download_available">No download available</string>
-    <string name="select_update_source">Select Update Source</string>
-    <string name="long_press_switch_source">Long press to switch source</string>
-    <string name="install">Install</string>
-    <string name="downloading">Downloading</string>
-    <string name="download_failed">Download failed: %s</string>
 
     <!-- Carrier overlay -->
     <string name="carrier_service_ready">Stellar service is running. CarrierConfig writes go through the built-in UserService.</string>

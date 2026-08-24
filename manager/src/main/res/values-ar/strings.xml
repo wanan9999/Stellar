@@ -167,14 +167,10 @@
     <string name="port_set_to">تم تعيين المنفذ إلى %s</string>
     <string name="service_logs">سجلات الخدمة</string>
     <string name="service_logs_subtitle">عرض سجلات خدمة Stellar</string>
-    <string name="already_latest_version">الإصدار محدّث</string>
-    <string name="check_update_failed">فشل التحقق من التحديثات</string>
     <string name="project_declaration">شكر وتقدير</string>
     <string name="project_declaration_content">هذا المشروع مبني على Shizuku، وهو مشروع مفتوح المصدر ممتاز يوفر إمكانية استدعاء واجهات النظام عبر ADB أو Root.</string>
     <string name="cannot_open_browser">تعذّر فتح المتصفح</string>
-    <string name="check_update">التحقق من التحديثات</string>
     <string name="current_version">الإصدار الحالي: %s</string>
-    <string name="checking">جارٍ التحقق…</string>
 
     <!-- Logs Screen -->
     <string name="service_not_running_toast">الخدمة متوقفة</string>
@@ -358,14 +354,4 @@
     <string name="adb_connection_failed">فشل اتصال ADB ‏%1$s:%2$d</string>
 
     <string name="logs_app_not_running">لم يكن التطبيق قيد التشغيل خلال جلسة الخدمة هذه، لا توجد سجلات متاحة.</string>
-
-    <!-- Update -->
-    <string name="new_version_title">إصدار جديد v%s</string>
-    <string name="go_to_download">فتح في المتصفح</string>
-    <string name="no_download_available">لا تتوفر تنزيلات</string>
-    <string name="select_update_source">اختيار مصدر التحديث</string>
-    <string name="long_press_switch_source">اضغط مطولاً لتغيير المصدر</string>
-    <string name="install">تثبيت</string>
-    <string name="downloading">جارٍ التنزيل</string>
-    <string name="download_failed">فشل التنزيل: %s</string>
 </resources>

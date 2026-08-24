@@ -29,7 +29,6 @@ dependencyResolutionManagement {
             content {
                 includeGroup("com.github.topjohnwu.libsu")
                 includeGroup("com.github.Kyant0")
-                includeGroup("com.github.jeziellago")
             }
         }
     }
