@@ -39,6 +39,7 @@ import roro.stellar.StellarApiConstants
 import roro.stellar.manager.authorization.AuthorizationManager
 import roro.stellar.manager.authorization.RequestPermissionActivity
 import roro.stellar.manager.carrier.CarrierReapply
+import roro.stellar.manager.compat.LocalNetworkPermissionRequester
 import roro.stellar.manager.domain.apps.AppType
 import roro.stellar.manager.domain.apps.AppsViewModel
 import roro.stellar.manager.domain.apps.appsViewModel
@@ -107,6 +108,7 @@ class MainActivity : ComponentActivity() {
             val themeMode = ThemePreferences.themeMode.value
 
             StellarTheme(themeMode = themeMode) {
+                LocalNetworkPermissionRequester()
                 TopAppBarProvider {
                     MainScreenContent(
                         homeViewModel = homeModel,

@@ -59,7 +59,7 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:remove="android:appComponentFactory"
-        tools:targetApi="36">
+        tools:targetApi="37">
 
         <activity
             android:name=".MainActivity"

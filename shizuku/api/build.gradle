@@ -4,9 +4,6 @@ plugins {
 
 android {
     namespace 'roro.stellar.shizuku'
-    defaultConfig {
-        consumerProguardFiles "consumer-rules.pro"
-    }
     buildFeatures {
         buildConfig false
     }

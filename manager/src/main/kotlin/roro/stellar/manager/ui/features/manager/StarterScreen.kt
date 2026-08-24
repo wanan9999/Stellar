@@ -14,6 +14,8 @@ import android.os.Build
 import roro.stellar.manager.compat.BuildUtils.atLeast28
 import roro.stellar.manager.compat.BuildUtils.atLeast30
 import roro.stellar.manager.compat.BuildUtils.atLeast33
+import roro.stellar.manager.compat.LocalNetwork
+import roro.stellar.manager.compat.LocalNetworkPermissionRequester
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -112,6 +114,10 @@ internal fun StarterScreen(
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val scrollState = rememberScrollState()
+
+    LocalNetworkPermissionRequester { granted ->
+        viewModel.setLocalNetworkPermission(granted)
+    }
 
     val horizontalPadding = if (isLandscape) 48.dp else AppSpacing.screenHorizontalPadding
 
@@ -280,13 +286,6 @@ private fun StepActionContent(
     context: Context
 ) {
     val hasNotificationPermission by viewModel.hasNotificationPermission.collectAsState()
-    val localNetworkPermission = remember {
-        when {
-            Build.VERSION.SDK_INT >= 37 -> "android.permission.ACCESS_LOCAL_NETWORK"
-            Build.VERSION.SDK_INT >= 36 -> Manifest.permission.NEARBY_WIFI_DEVICES
-            else -> null
-        }
-    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -416,10 +415,8 @@ private fun StepActionContent(
                 }
                 Button(
                     onClick = {
-                        if (localNetworkPermission != null &&
-                            ContextCompat.checkSelfPermission(context, localNetworkPermission) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            localNetworkPermissionLauncher.launch(localNetworkPermission)
+                        if (!LocalNetwork.hasAccess(context)) {
+                            localNetworkPermissionLauncher.launch(LocalNetwork.PERMISSION)
                         } else {
                             try {
                                 context.startActivity(
@@ -925,15 +922,7 @@ internal class StarterViewModel(
     )
     val hasNotificationPermission: StateFlow<Boolean> = _hasNotificationPermission.asStateFlow()
 
-    private val _hasLocalNetworkPermission = MutableStateFlow(
-        when {
-            Build.VERSION.SDK_INT >= 37 ->
-                ContextCompat.checkSelfPermission(context, "android.permission.ACCESS_LOCAL_NETWORK") == PackageManager.PERMISSION_GRANTED
-            Build.VERSION.SDK_INT >= 36 ->
-                ContextCompat.checkSelfPermission(context, Manifest.permission.NEARBY_WIFI_DEVICES) == PackageManager.PERMISSION_GRANTED
-            else -> true
-        }
-    )
+    private val _hasLocalNetworkPermission = MutableStateFlow(LocalNetwork.hasAccess(context))
 
     private val _outputLines = MutableStateFlow<List<String>>(emptyList())
     val outputLines: StateFlow<List<String>> = _outputLines.asStateFlow()
