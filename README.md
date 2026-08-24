@@ -1,20 +1,5 @@
-<div align="center">
-
-# Stellar
+## Stellar
 一个基于 Shizuku 的深度定制分支，让应用通过 ADB 或 Root 权限使用系统级 API
-
-[![GitHub Stars](https://img.shields.io/github/stars/roro2239/Stellar?style=flat-square&logo=github&logoColor=white&color=181717&cacheSeconds=0)](https://github.com/roro2239/Stellar/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/roro2239/Stellar?style=flat-square&logo=github&logoColor=white&color=181717)](https://github.com/roro2239/Stellar/forks)
-[![GitHub Issues](https://img.shields.io/github/issues/roro2239/Stellar?style=flat-square&logo=github&logoColor=white&color=e74c3c)](https://github.com/roro2239/Stellar/issues)
-[![GitHub Release](https://img.shields.io/github/v/release/roro2239/Stellar?style=flat-square&logo=github&logoColor=white&color=28a745)](https://github.com/roro2239/Stellar/releases)
-
----
-官方交流群组：
-[![QQ群](https://img.shields.io/badge/QQ-1群-12B7F5?style=flat-square&logo=qq&logoColor=white)](https://qm.qq.com/cgi-bin/qm/qr?k=bIpIHQX12Kajh951zELULlF5FN6zeN0y&jump_from=webapi&authKey=Kf6RnfWG1o7whQIi20Uz+X6/dzf/D6/TzED25Pyb0N5td/eVClgysJXgPYnbZhr5)
-
-Language: [English](README_en.md) | 中文
-
-</div>
 
 ## 项目简介
 
@@ -166,6 +151,8 @@ su (root) → libchid.so 2000 → libstellar.so --apk=...
 
 本项目基于 [Shizuku](https://github.com/RikkaApps/Shizuku)，由 [RikkaApps](https://github.com/RikkaApps) 开发。感谢原作者的杰出工作。
 
+基于 https://github.com/roro2239/Stellar 的fork
+
 ### 许可证
 
 本项目的修改部分采用 [Mozilla Public License 2.0](LICENSE)。
@@ -177,28 +164,8 @@ su (root) → libchid.so 2000 → libstellar.so --apk=...
 | Stellar 修改部分 | Mozilla Public License 2.0 |
 | [Shizuku](https://github.com/RikkaApps/Shizuku) 原始代码 | Apache License 2.0 |
 
-## 贡献
-
-欢迎提交 Issue 和 Pull Request。在提交代码前，请确保：
-
-- 代码风格符合项目规范（Kotlin）
-- 添加必要的注释和文档
-- 测试通过所有功能
-
-## 联系方式
-
-- GitHub Issues: [提交问题](https://github.com/RORO2239/Stellar/issues)
-- 项目主页: [RORO2239/Stellar](https://github.com/RORO2239/Stellar)
 
 ## 相关链接
 
 - [完整 API 文档](INTEGRATION_GUIDE.md)
 - [原版 Shizuku](https://github.com/RikkaApps/Shizuku)
-
-<a href="https://www.star-history.com/?repos=roro2239%2FStellar&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=roro2239/Stellar&type=date&theme=dark&legend=top-left&sealed_token=DOGFkMNyKuECKihlTE4gifDbvly4k4Wr5IjBhG6w407ZVASud6bVrZlbDfNkY6rKv8GpKgpOYQ8uYyfFmwMEx6uLVcustg1MI-tvtusH3twxsJFOlmpY-g" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=roro2239/Stellar&type=date&legend=top-left&sealed_token=DOGFkMNyKuECKihlTE4gifDbvly4k4Wr5IjBhG6w407ZVASud6bVrZlbDfNkY6rKv8GpKgpOYQ8uYyfFmwMEx6uLVcustg1MI-tvtusH3twxsJFOlmpY-g" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=roro2239/Stellar&type=date&legend=top-left&sealed_token=DOGFkMNyKuECKihlTE4gifDbvly4k4Wr5IjBhG6w407ZVASud6bVrZlbDfNkY6rKv8GpKgpOYQ8uYyfFmwMEx6uLVcustg1MI-tvtusH3twxsJFOlmpY-g" />
- </picture>
-</a>
