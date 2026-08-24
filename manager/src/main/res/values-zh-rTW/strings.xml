@@ -26,6 +26,7 @@
     <!-- Navigation -->
     <string name="nav_home">啟動</string>
     <string name="nav_apps">授權應用</string>
+    <string name="nav_carrier">SIM</string>
     <string name="nav_terminal">命令</string>
     <string name="nav_settings">設定</string>
 
@@ -146,6 +147,8 @@
     <string name="setting_failed">設定失敗: %s</string>
     <string name="drop_privileges">降權啟動</string>
     <string name="drop_privileges_subtitle">Root 啟動後降權到 Shell 使用者執行</string>
+    <string name="wireless_debugging_su">無線偵錯提權 su</string>
+    <string name="wireless_debugging_su_subtitle">嘗試透過無線偵錯使用 su 提權啟動服務</string>
     <string name="daemon_enabled">行程守護</string>
     <string name="daemon_enabled_subtitle">雙行程互守，自動重啟</string>
     <string name="add_to_home_screen">加入主畫面</string>
@@ -192,6 +195,11 @@
     <string name="mode_click_execute_desc">手動點擊執行命令</string>
     <string name="mode_follow_service">跟隨服務</string>
     <string name="mode_follow_service_desc">服務啟動時自動執行</string>
+    <string name="mode_follow_service_once">跟隨服務執行指定次數</string>
+    <string name="mode_follow_service_once_desc">服務啟動時依設定次數執行</string>
+    <string name="command_max_executions">執行次數</string>
+    <string name="command_enabled">啟用</string>
+    <string name="command_execution_count">總計 %1$d/%2$d 次（成功 %3$d 次，失敗 %4$d 次）</string>
     <string name="command">命令</string>
     <string name="quick_execute">快速執行</string>
     <string name="add_command">新增命令</string>
@@ -354,4 +362,19 @@
     <string name="adb_connection_failed">ADB 連線失敗 %1$s:%2$d</string>
 
     <string name="logs_app_not_running">該應用在本次服務啟動期間未執行，無可用日誌。</string>
+
+    <string name="carrier_service_ready">Stellar 服務已執行，電信設定覆蓋將透過內建 UserService 寫入。</string>
+    <string name="carrier_service_missing">Stellar 服務未執行。請先在「啟動」頁完成 ADB 配對或 Root 啟動。</string>
+    <string name="carrier_section_sim">SIM 卡</string>
+    <string name="carrier_section_country">國家碼</string>
+    <string name="carrier_section_name">電信業者名稱</string>
+    <string name="carrier_section_verify">校驗</string>
+    <string name="carrier_custom_iso">自訂 ISO（2 位字母）</string>
+    <string name="carrier_auto_reapply">Stellar 啟動時自動重放</string>
+    <string name="carrier_auto_reapply_hint">Android 16 只能非持久寫入時，需要開機後自動再寫一次。</string>
+    <string name="carrier_apply">套用</string>
+    <string name="carrier_reset">還原</string>
+    <string name="carrier_persistent">已持久寫入</string>
+    <string name="carrier_non_persistent">目前為非持久寫入，Stellar 再次啟動時會自動還原。</string>
+    <string name="carrier_disclaimer">只覆蓋系統 CarrierConfig 的國家碼/顯示名稱，不會改寫 SIM、IMSI 或 MCC/MNC，也不會修改官方 TikTok。官方用戶端仍需要能存取其伺服器。</string>
 </resources>

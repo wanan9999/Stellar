@@ -5,6 +5,7 @@
     <!-- Navigation -->
     <string name="nav_home">Inicio</string>
     <string name="nav_apps">Aplicaciones</string>
+    <string name="nav_carrier">SIM</string>
     <string name="nav_terminal">Terminal</string>
     <string name="nav_settings">Ajustes</string>
 
@@ -146,6 +147,8 @@
     <string name="setting_failed">Error en la configuración: %s</string>
     <string name="drop_privileges">Reducir privilegios</string>
     <string name="drop_privileges_subtitle">Ejecutar como usuario Shell tras el inicio Root</string>
+    <string name="wireless_debugging_su">Elevación su por depuración inalámbrica</string>
+    <string name="wireless_debugging_su_subtitle">Intentar iniciar el servicio con su a través de la depuración inalámbrica</string>
     <string name="daemon_enabled">Demonio de proceso</string>
     <string name="daemon_enabled_subtitle">Monitoreo mutuo para reinicio automático</string>
     <string name="add_to_home_screen">Añadir a inicio</string>
@@ -192,6 +195,11 @@
     <string name="mode_click_execute_desc">Pulse para ejecutar comandos manualmente</string>
     <string name="mode_follow_service">Inicio del servicio</string>
     <string name="mode_follow_service_desc">Ejecutar automáticamente al iniciar el servicio</string>
+    <string name="mode_follow_service_once">Ejecutar un número limitado de veces con el servicio</string>
+    <string name="mode_follow_service_once_desc">Ejecutar el número elegido al iniciar el servicio</string>
+    <string name="command_max_executions">Ejecuciones máximas</string>
+    <string name="command_enabled">Activado</string>
+    <string name="command_execution_count">Total %1$d/%2$d (correctas %3$d, fallidas %4$d)</string>
     <string name="command">Comandos</string>
     <string name="quick_execute">Ejecución rápida</string>
     <string name="add_command">Añadir comando</string>
@@ -354,4 +362,19 @@
     <string name="adb_connection_failed">Error de conexión ADB %1$s:%2$d</string>
 
     <string name="logs_app_not_running">La aplicación no se ejecutó durante esta sesión del servicio, no hay registros disponibles.</string>
+
+    <string name="carrier_service_ready">El servicio Stellar está en ejecución. Las escrituras de CarrierConfig pasan por el UserService integrado.</string>
+    <string name="carrier_service_missing">El servicio Stellar no está en ejecución. Empareja ADB o inicia con Root primero.</string>
+    <string name="carrier_section_sim">Tarjetas SIM</string>
+    <string name="carrier_section_country">ISO del país</string>
+    <string name="carrier_section_name">Nombre del operador</string>
+    <string name="carrier_section_verify">Verificar</string>
+    <string name="carrier_custom_iso">ISO personalizado (2 letras)</string>
+    <string name="carrier_auto_reapply">Volver a aplicar al iniciar Stellar</string>
+    <string name="carrier_auto_reapply_hint">Necesario en Android 16 cuando solo se permiten escrituras no persistentes.</string>
+    <string name="carrier_apply">Aplicar</string>
+    <string name="carrier_reset">Restablecer</string>
+    <string name="carrier_persistent">Escritura persistente correcta</string>
+    <string name="carrier_non_persistent">Escritura no persistente. Se restaurará al iniciar Stellar.</string>
+    <string name="carrier_disclaimer">Solo superpone CarrierConfig (ISO del país SIM / nombre mostrado). No reescribe la SIM, el IMSI ni el MCC/MNC, y no modifica TikTok. El cliente oficial de TikTok sigue necesitando una ruta de red funcional.</string>
 </resources>

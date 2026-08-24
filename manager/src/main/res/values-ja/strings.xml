@@ -5,6 +5,7 @@
     <!-- Navigation -->
     <string name="nav_home">ホーム</string>
     <string name="nav_apps">アプリ</string>
+    <string name="nav_carrier">SIM</string>
     <string name="nav_terminal">ターミナル</string>
     <string name="nav_settings">設定</string>
 
@@ -146,6 +147,8 @@
     <string name="setting_failed">設定に失敗しました: %s</string>
     <string name="drop_privileges">権限を下げる</string>
     <string name="drop_privileges_subtitle">Root 起動後に shell ユーザーとして実行します</string>
+    <string name="wireless_debugging_su">ワイヤレスデバッグ su 昇格</string>
+    <string name="wireless_debugging_su_subtitle">ワイヤレスデバッグ経由で su を使ってサービスを起動します</string>
     <string name="daemon_enabled">プロセスデーモン</string>
     <string name="daemon_enabled_subtitle">相互監視で自動再起動します</string>
     <string name="add_to_home_screen">ホームに追加</string>
@@ -192,6 +195,11 @@
     <string name="mode_click_execute_desc">タップしてコマンドを手動実行します</string>
     <string name="mode_follow_service">サービス開始時</string>
     <string name="mode_follow_service_desc">サービス開始時に自動実行します</string>
+    <string name="mode_follow_service_once">サービス起動時に指定回数だけ実行</string>
+    <string name="mode_follow_service_once_desc">サービス開始時に設定した回数だけ実行します</string>
+    <string name="command_max_executions">最大実行回数</string>
+    <string name="command_enabled">有効</string>
+    <string name="command_execution_count">合計 %1$d/%2$d（成功 %3$d、失敗 %4$d）</string>
     <string name="command">コマンド</string>
     <string name="quick_execute">クイック実行</string>
     <string name="add_command">コマンドを追加</string>
@@ -354,4 +362,19 @@
     <string name="adb_connection_failed">ADB 接続に失敗しました %1$s:%2$d</string>
 
     <string name="logs_app_not_running">このサービスセッション中にアプリは実行されていなかったため、利用可能なログはありません。</string>
+
+    <string name="carrier_service_ready">Stellar サービスは実行中です。CarrierConfig の書き込みは内蔵 UserService 経由で行われます。</string>
+    <string name="carrier_service_missing">Stellar サービスが実行されていません。先に ADB ペアリングまたは Root で起動してください。</string>
+    <string name="carrier_section_sim">SIM カード</string>
+    <string name="carrier_section_country">国コード</string>
+    <string name="carrier_section_name">キャリア名</string>
+    <string name="carrier_section_verify">確認</string>
+    <string name="carrier_custom_iso">カスタム ISO（2 文字）</string>
+    <string name="carrier_auto_reapply">Stellar 起動時に再適用</string>
+    <string name="carrier_auto_reapply_hint">Android 16 で非永続書き込みしかできない場合に必要です。</string>
+    <string name="carrier_apply">適用</string>
+    <string name="carrier_reset">リセット</string>
+    <string name="carrier_persistent">永続書き込みに成功しました</string>
+    <string name="carrier_non_persistent">非永続書き込みです。Stellar 起動時に復元されます。</string>
+    <string name="carrier_disclaimer">CarrierConfig（SIM の国コード / 表示名）を上書きするだけです。SIM、IMSI、MCC/MNC は書き換えず、TikTok も改変しません。公式 TikTok には引き続き利用可能なネットワーク経路が必要です。</string>
 </resources>

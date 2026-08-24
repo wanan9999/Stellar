@@ -113,26 +113,24 @@ def collapseReleaseResourceNames = task('collapseReleaseResourceNames').doLast {
 }
 afterEvaluate {
     tasks.findByName('optimizeReleaseResources')?.finalizedBy(collapseReleaseResourceNames)
-}
-android.applicationVariants.configureEach { variant ->
-    variant.outputs.configureEach {
-        outputFileName = "stellar-v${variant.versionName}-${variant.name}.apk"
-
-        variant.assembleProvider.get().doLast {
-            def outDir = new File(rootDir, "out")
-            def mappingDir = new File(outDir, "mapping").absolutePath
-            def apkDir = new File(outDir, "apk").absolutePath
-
-            if (variant.getBuildType().isMinifyEnabled()) {
-                copy {
-                    from variant.mappingFileProvider.get()
-                    into mappingDir
-                    rename { String fileName -> "mapping-${variant.versionName}.txt" }
-                }
-                copy {
-                    from outputFile
-                    into apkDir
-                }
+    tasks.findByName('assembleRelease')?.doLast {
+        def outDir = new File(rootDir, 'out')
+        def mappingDir = new File(outDir, 'mapping')
+        def apkDir = new File(outDir, 'apk')
+        def mapping = file("${layout.buildDirectory.get()}/outputs/mapping/release/mapping.txt")
+        if (mapping.exists()) {
+            copy {
+                from mapping
+                into mappingDir
+                rename { "mapping-${rootProject.ext.versionName}.txt" }
+            }
+        }
+        def apk = fileTree("${layout.buildDirectory.get()}/outputs/apk/release").matching { include '*.apk' }
+        if (!apk.isEmpty()) {
+            copy {
+                from apk
+                into apkDir
+                rename { "stellar-v${rootProject.ext.versionName}-release.apk" }
             }
         }
     }

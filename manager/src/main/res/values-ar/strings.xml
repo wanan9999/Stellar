@@ -26,6 +26,7 @@
     <!-- Navigation -->
     <string name="nav_home">تشغيل</string>
     <string name="nav_apps">التطبيقات</string>
+    <string name="nav_carrier">SIM</string>
     <string name="nav_terminal">الطرفية</string>
     <string name="nav_settings">الإعدادات</string>
 
@@ -146,6 +147,8 @@
     <string name="setting_failed">فشل الإعداد: %s</string>
     <string name="drop_privileges">تخفيض الصلاحيات</string>
     <string name="drop_privileges_subtitle">التشغيل كمستخدم Shell بعد تشغيل Root</string>
+    <string name="wireless_debugging_su">رفع صلاحيات su عبر تصحيح الأخطاء اللاسلكي</string>
+    <string name="wireless_debugging_su_subtitle">محاولة تشغيل الخدمة باستخدام su عبر تصحيح الأخطاء اللاسلكي</string>
     <string name="daemon_enabled">حارس العملية</string>
     <string name="daemon_enabled_subtitle">مراقبة متبادلة لإعادة التشغيل التلقائي</string>
     <string name="add_to_home_screen">إضافة إلى الشاشة الرئيسية</string>
@@ -192,6 +195,11 @@
     <string name="mode_click_execute_desc">اضغط لتنفيذ الأوامر يدوياً</string>
     <string name="mode_follow_service">بدء الخدمة</string>
     <string name="mode_follow_service_desc">التنفيذ تلقائياً عند بدء الخدمة</string>
+    <string name="mode_follow_service_once">التنفيذ عدداً محدداً من المرات مع الخدمة</string>
+    <string name="mode_follow_service_once_desc">التنفيذ بعدد المرات المحدد عند بدء الخدمة</string>
+    <string name="command_max_executions">الحد الأقصى للتنفيذ</string>
+    <string name="command_enabled">مفعّل</string>
+    <string name="command_execution_count">الإجمالي %1$d/%2$d (نجاح %3$d، فشل %4$d)</string>
     <string name="command">الأوامر</string>
     <string name="quick_execute">تنفيذ سريع</string>
     <string name="add_command">إضافة أمر</string>
@@ -354,4 +362,19 @@
     <string name="adb_connection_failed">فشل اتصال ADB ‏%1$s:%2$d</string>
 
     <string name="logs_app_not_running">لم يكن التطبيق قيد التشغيل خلال جلسة الخدمة هذه، لا توجد سجلات متاحة.</string>
+
+    <string name="carrier_service_ready">خدمة Stellar قيد التشغيل. تُكتب CarrierConfig عبر UserService المدمج.</string>
+    <string name="carrier_service_missing">خدمة Stellar غير قيد التشغيل. أتمم إقران ADB أو التشغيل بصلاحيات Root أولاً.</string>
+    <string name="carrier_section_sim">بطاقات SIM</string>
+    <string name="carrier_section_country">رمز الدولة</string>
+    <string name="carrier_section_name">اسم المشغّل</string>
+    <string name="carrier_section_verify">تحقق</string>
+    <string name="carrier_custom_iso">ISO مخصص (حرفان)</string>
+    <string name="carrier_auto_reapply">إعادة التطبيق عند تشغيل Stellar</string>
+    <string name="carrier_auto_reapply_hint">مطلوب على Android 16 عندما يُسمح بالكتابة غير الدائمة فقط.</string>
+    <string name="carrier_apply">تطبيق</string>
+    <string name="carrier_reset">إعادة تعيين</string>
+    <string name="carrier_persistent">نجحت الكتابة الدائمة</string>
+    <string name="carrier_non_persistent">كتابة غير دائمة. ستُستعاد عند تشغيل Stellar.</string>
+    <string name="carrier_disclaimer">هذا يغطي CarrierConfig فقط (رمز دولة SIM / الاسم المعروض). لا يعيد كتابة SIM أو IMSI أو MCC/MNC، ولا يعدّل TikTok. لا يزال عميل TikTok الرسمي يحتاج مساراً شبكياً يعمل.</string>
 </resources>

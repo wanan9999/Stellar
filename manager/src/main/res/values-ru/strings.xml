@@ -26,6 +26,7 @@
     <!-- Navigation -->
     <string name="nav_home">Запуск</string>
     <string name="nav_apps">Приложения</string>
+    <string name="nav_carrier">SIM</string>
     <string name="nav_terminal">Терминал</string>
     <string name="nav_settings">Настройки</string>
 
@@ -146,6 +147,8 @@
     <string name="setting_failed">Ошибка настройки: %s</string>
     <string name="drop_privileges">Понижение привилегий</string>
     <string name="drop_privileges_subtitle">Работать от пользователя Shell после запуска Root</string>
+    <string name="wireless_debugging_su">Повышение su через беспроводную отладку</string>
+    <string name="wireless_debugging_su_subtitle">Попытаться запустить сервис через su по беспроводной отладке</string>
     <string name="daemon_enabled">Демон процесса</string>
     <string name="daemon_enabled_subtitle">Взаимный мониторинг для автоперезапуска</string>
     <string name="add_to_home_screen">Добавить на главный экран</string>
@@ -192,6 +195,11 @@
     <string name="mode_click_execute_desc">Нажмите для выполнения команд вручную</string>
     <string name="mode_follow_service">Запуск сервиса</string>
     <string name="mode_follow_service_desc">Выполнять автоматически при запуске сервиса</string>
+    <string name="mode_follow_service_once">Выполнять ограниченное число раз при запуске сервиса</string>
+    <string name="mode_follow_service_once_desc">Выполнять заданное число раз при запуске сервиса</string>
+    <string name="command_max_executions">Максимум выполнений</string>
+    <string name="command_enabled">Включено</string>
+    <string name="command_execution_count">Всего %1$d/%2$d (успешно %3$d, ошибок %4$d)</string>
     <string name="command">Команды</string>
     <string name="quick_execute">Быстрый запуск</string>
     <string name="add_command">Добавить команду</string>
@@ -354,4 +362,19 @@
     <string name="adb_connection_failed">Ошибка подключения ADB %1$s:%2$d</string>
 
     <string name="logs_app_not_running">Приложение не запускалось за время этой сессии сервиса, журналы недоступны.</string>
+
+    <string name="carrier_service_ready">Сервис Stellar запущен. Запись CarrierConfig выполняется через встроенный UserService.</string>
+    <string name="carrier_service_missing">Сервис Stellar не запущен. Сначала выполните сопряжение ADB или запуск с Root.</string>
+    <string name="carrier_section_sim">SIM-карты</string>
+    <string name="carrier_section_country">Код страны</string>
+    <string name="carrier_section_name">Имя оператора</string>
+    <string name="carrier_section_verify">Проверка</string>
+    <string name="carrier_custom_iso">Свой ISO (2 буквы)</string>
+    <string name="carrier_auto_reapply">Повторять при запуске Stellar</string>
+    <string name="carrier_auto_reapply_hint">Нужно на Android 16, когда разрешена только непостоянная запись.</string>
+    <string name="carrier_apply">Применить</string>
+    <string name="carrier_reset">Сбросить</string>
+    <string name="carrier_persistent">Постоянная запись выполнена</string>
+    <string name="carrier_non_persistent">Непостоянная запись. Она будет восстановлена при запуске Stellar.</string>
+    <string name="carrier_disclaimer">Это только накладывает CarrierConfig (ISO страны SIM / отображаемое имя). SIM, IMSI и MCC/MNC не переписываются, TikTok не изменяется. Официальному клиенту TikTok по-прежнему нужен рабочий сетевой путь.</string>
 </resources>

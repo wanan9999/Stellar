@@ -89,7 +89,6 @@ data class StepData(
     val isOptional: Boolean = false
 )
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun StarterScreen(
@@ -278,7 +277,6 @@ internal fun StarterScreen(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun StepActionContent(
     step: StepData,

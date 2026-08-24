@@ -1,6 +1,5 @@
 package roro.stellar.manager.compat
 
-import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -11,7 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 
 object LocalNetwork {
-    const val PERMISSION = Manifest.permission.ACCESS_LOCAL_NETWORK
+    const val PERMISSION = "android.permission.ACCESS_LOCAL_NETWORK"
 
     fun isRequired(): Boolean = BuildUtils.atLeast37
 
