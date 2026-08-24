@@ -5,6 +5,7 @@
     <!-- Navigation -->
     <string name="nav_home">Start</string>
     <string name="nav_apps">Apps</string>
+    <string name="nav_carrier">SIM</string>
     <string name="nav_terminal">Terminal</string>
     <string name="nav_settings">Settings</string>
 
@@ -375,4 +376,20 @@
     <string name="install">Install</string>
     <string name="downloading">Downloading</string>
     <string name="download_failed">Download failed: %s</string>
+
+    <!-- Carrier overlay -->
+    <string name="carrier_service_ready">Stellar service is running. CarrierConfig writes go through the built-in UserService.</string>
+    <string name="carrier_service_missing">Stellar service is not running. Pair ADB or start with Root first.</string>
+    <string name="carrier_section_sim">SIM cards</string>
+    <string name="carrier_section_country">Country ISO</string>
+    <string name="carrier_section_name">Carrier name</string>
+    <string name="carrier_section_verify">Verify</string>
+    <string name="carrier_custom_iso">Custom ISO (2 letters)</string>
+    <string name="carrier_auto_reapply">Reapply when Stellar starts</string>
+    <string name="carrier_auto_reapply_hint">Needed on Android 16 when only non-persistent writes are allowed.</string>
+    <string name="carrier_apply">Apply</string>
+    <string name="carrier_reset">Reset</string>
+    <string name="carrier_persistent">Persistent write succeeded</string>
+    <string name="carrier_non_persistent">Non-persistent write. It will be restored when Stellar starts.</string>
+    <string name="carrier_disclaimer">This only overlays CarrierConfig (sim country ISO / display name). It does not rewrite the SIM, IMSI, or MCC/MNC, and it does not modify TikTok. Official TikTok still needs a working network path.</string>
 </resources>

@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -15,9 +14,6 @@ android {
         release {
             minifyEnabled false
         }
-    }
-    kotlin {
-        jvmToolchain(21)
     }
 }
 

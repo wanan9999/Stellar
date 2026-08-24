@@ -1,0 +1,58 @@
+package roro.stellar.manager.carrier
+
+import android.os.IBinder
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import roro.stellar.Stellar
+import roro.stellar.manager.BuildConfig
+import roro.stellar.userservice.ServiceMode
+import roro.stellar.userservice.StellarUserService
+import roro.stellar.userservice.UserServiceArgs
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+
+object CarrierClient {
+    private val mutex = Mutex()
+    @Volatile private var service: ICarrierOverrideService? = null
+
+    private fun args() = UserServiceArgs.Builder(CarrierUserService::class.java)
+        .processNameSuffix("carrier")
+        .versionCode(BuildConfig.VERSION_CODE.toLong())
+        .serviceMode(ServiceMode.DAEMON)
+        .debug(BuildConfig.DEBUG)
+        .build()
+
+    suspend fun ensure(): ICarrierOverrideService = mutex.withLock {
+        val current = service
+        if (current?.asBinder()?.pingBinder() == true) return current
+        if (!Stellar.pingBinder()) error("Stellar 服务未运行")
+        bindLocked()
+    }
+
+    fun unbind() {
+        runCatching { StellarUserService.unbindUserService(args()) }
+        service = null
+    }
+
+    private suspend fun bindLocked(): ICarrierOverrideService {
+        return suspendCancellableCoroutine { cont ->
+            StellarUserService.bindUserService(args(), object : StellarUserService.ServiceCallback {
+                override fun onServiceConnected(binder: IBinder) {
+                    val remote = ICarrierOverrideService.Stub.asInterface(binder)
+                    service = remote
+                    if (cont.isActive) cont.resume(remote)
+                }
+
+                override fun onServiceDisconnected() {
+                    service = null
+                }
+
+                override fun onServiceStartFailed(errorCode: Int, message: String) {
+                    service = null
+                    if (cont.isActive) cont.resumeWithException(IllegalStateException("[$errorCode] $message"))
+                }
+            })
+        }
+    }
+}

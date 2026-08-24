@@ -6,11 +6,11 @@ pluginManagement {
     }
 
     plugins {
-        id("com.android.application") version '8.13.2'
-        id("com.android.library") version '8.13.2'
+        id("com.android.application") version '9.3.0'
+        id("com.android.library") version '9.3.0'
         id("org.jetbrains.kotlin.android") version '2.2.0'
-        id("org.jetbrains.kotlin.plugin.compose") version "2.1.21"
-        id("com.google.devtools.ksp") version "2.2.0-2.0.2"
+        id("org.jetbrains.kotlin.plugin.compose") version "2.2.0"
+        id("com.google.devtools.ksp") version "2.3.11"
         id("dev.rikka.tools.autoresconfig") version "1.2.2"
         id("dev.rikka.tools.materialthemebuilder") version "1.5.1"
         id("dev.rikka.tools.refine") version "4.4.0"
@@ -82,9 +82,6 @@ project(':api').projectDir = file("$root${File.separator}api")
 
 include ':provider'
 project(':provider').projectDir = file("$root${File.separator}provider")
-
-include ':hidden-api-stub'
-project(':hidden-api-stub').projectDir = file("$root${File.separator}hidden-api-stub")
 
 include ':userservice'
 project(':userservice').projectDir = file("$root${File.separator}userservice")

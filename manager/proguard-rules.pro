@@ -38,6 +38,12 @@
     public static void main(java.lang.String[]);
 }
 
+-keep class roro.stellar.manager.carrier.CarrierUserService { *; }
+-keep class roro.stellar.manager.carrier.PrivilegedProcess { *; }
+-keep class roro.stellar.manager.carrier.ICarrierOverrideService { *; }
+-keep class roro.stellar.manager.carrier.ICarrierOverrideService$Stub { *; }
+-keepnames class roro.stellar.manager.carrier.** { *; }
+
 # Keep StellarDaemon for app_process
 -keep class roro.stellar.server.daemon.StellarDaemon {
     public static void main(java.lang.String[]);

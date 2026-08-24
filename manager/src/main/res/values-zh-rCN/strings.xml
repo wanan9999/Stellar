@@ -4,6 +4,7 @@
     <!-- Navigation -->
     <string name="nav_home">启动</string>
     <string name="nav_apps">授权应用</string>
+    <string name="nav_carrier">SIM</string>
     <string name="nav_terminal">命令</string>
     <string name="nav_settings">设置</string>
 
@@ -374,4 +375,19 @@
     <string name="install">安装</string>
     <string name="downloading">下载中</string>
     <string name="download_failed">下载失败: %s</string>
+
+    <string name="carrier_service_ready">Stellar 服务已运行，运营商覆盖将通过内置 UserService 写入。</string>
+    <string name="carrier_service_missing">Stellar 服务未运行。请先在「启动」页完成 ADB 配对或 Root 启动。</string>
+    <string name="carrier_section_sim">SIM 卡</string>
+    <string name="carrier_section_country">国家码</string>
+    <string name="carrier_section_name">运营商名称</string>
+    <string name="carrier_section_verify">校验</string>
+    <string name="carrier_custom_iso">自定义 ISO（2 位字母）</string>
+    <string name="carrier_auto_reapply">Stellar 启动时自动重放</string>
+    <string name="carrier_auto_reapply_hint">Android 16 只能非持久写入时，需要开机后自动再写一次。</string>
+    <string name="carrier_apply">应用</string>
+    <string name="carrier_reset">还原</string>
+    <string name="carrier_persistent">已持久写入</string>
+    <string name="carrier_non_persistent">当前为非持久写入，Stellar 再次启动时会自动恢复。</string>
+    <string name="carrier_disclaimer">只覆盖系统 CarrierConfig 的国家码/显示名，不会改写 SIM、IMSI 或 MCC/MNC，也不会修改官方 TikTok。官方客户端仍需要能访问其服务器。</string>
 </resources>

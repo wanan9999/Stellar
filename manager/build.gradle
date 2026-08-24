@@ -5,7 +5,6 @@ import java.util.Properties
 
 plugins {
     id('com.android.application')
-    id('org.jetbrains.kotlin.android')
     id('org.jetbrains.kotlin.plugin.compose')
     id('com.google.devtools.ksp')
     id('dev.rikka.tools.refine')
@@ -34,6 +33,7 @@ android {
         buildConfig true
         prefab true
         compose true
+        aidl true
     }
 
     def signingPropsFile = rootProject.file("signing.properties")
@@ -87,9 +87,6 @@ android {
         }
     }
 
-    kotlin {
-        jvmToolchain(21)
-    }
 }
 
 autoResConfig {
@@ -153,6 +150,7 @@ dependencies {
     implementation project(':server')
     implementation project(':api')
     implementation project(':provider')
+    implementation project(':userservice')
 
     implementation libs.hidden.compat
     compileOnly libs.hidden.stub

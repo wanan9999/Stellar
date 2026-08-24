@@ -1,6 +1,5 @@
 plugins {
     id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
     id 'dev.rikka.tools.refine'
 }
 
@@ -8,9 +7,6 @@ android {
     namespace 'com.stellar.server'
     buildFeatures {
         buildConfig = false
-    }
-    kotlin {
-        jvmToolchain(21)
     }
 }
 dependencies {

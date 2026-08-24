@@ -39,11 +39,13 @@ import roro.stellar.Stellar
 import roro.stellar.StellarApiConstants
 import roro.stellar.manager.authorization.AuthorizationManager
 import roro.stellar.manager.authorization.RequestPermissionActivity
+import roro.stellar.manager.carrier.CarrierReapply
 import roro.stellar.manager.domain.apps.AppType
 import roro.stellar.manager.domain.apps.AppsViewModel
 import roro.stellar.manager.domain.apps.appsViewModel
 import roro.stellar.manager.ui.components.AdaptiveLayoutProvider
 import roro.stellar.manager.ui.features.apps.AppsScreen
+import roro.stellar.manager.ui.features.carrier.CarrierScreen
 import roro.stellar.manager.ui.features.home.HomeScreen
 import roro.stellar.manager.ui.features.home.HomeViewModel
 import roro.stellar.manager.ui.features.manager.ManagerActivity
@@ -74,6 +76,7 @@ class MainActivity : ComponentActivity() {
     private val binderReceivedListener = Stellar.OnBinderReceivedListener {
         checkServerStatus()
         handlePendingSourceApp()
+        CarrierReapply.onServiceReady()
         try {
             appsModel.load()
         } catch (e: Exception) {
@@ -222,7 +225,7 @@ private fun MainScreenContent(
     val initialIndex = when (startPage) {
         StartPage.HOME -> 0
         StartPage.APPS -> 1
-        StartPage.TERMINAL -> 2
+        StartPage.TERMINAL -> 3
     }
     val startRoute = when (startPage) {
         StartPage.HOME -> MainScreen.Home.route
@@ -304,6 +307,15 @@ private fun MainScreenContent(
                         topAppBarState = topAppBarState,
                         appsViewModel = appsViewModel
                     )
+                }
+            }
+
+            navigation(
+                startDestination = "carrier",
+                route = MainScreen.Carrier.route
+            ) {
+                composable("carrier") {
+                    CarrierScreen(topAppBarState = topAppBarState)
                 }
             }
 
