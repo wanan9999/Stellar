@@ -1,6 +1,8 @@
 ## Stellar
 一个基于 Shizuku 的深度定制分支，让应用通过 ADB 或 Root 权限使用系统级 API
 
+基于 [roro2239/Stellar](https://github.com/roro2239/Stellar) 的fork
+
 ## 项目简介
 
 Stellar 是 [Shizuku](https://github.com/RikkaApps/Shizuku) 的深度定制版本，专为开发者提供更灵活、更强大的特权 API 框架。通过 ADB 无线调试或 Root 权限启动服务后，应用程序可以调用需要系统级权限的 API，而无需应用本身拥有 Root 权限。
@@ -151,7 +153,7 @@ su (root) → libchid.so 2000 → libstellar.so --apk=...
 
 本项目基于 [Shizuku](https://github.com/RikkaApps/Shizuku)，由 [RikkaApps](https://github.com/RikkaApps) 开发。感谢原作者的杰出工作。
 
-基于 https://github.com/roro2239/Stellar 的fork
+基于 [roro2239/Stellar](https://github.com/roro2239/Stellar) 的fork
 
 ### 许可证
 
