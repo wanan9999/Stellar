@@ -922,12 +922,13 @@ fun SettingsScreen(
 @Composable
 private fun RepoLink(label: String, url: String) {
     val context = LocalContext.current
+    val cannotOpenBrowser = stringResource(R.string.cannot_open_browser)
     Row(
         modifier = Modifier.clickable {
             try {
                 context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
             } catch (_: Exception) {
-                Toast.makeText(context, context.getString(R.string.cannot_open_browser), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, cannotOpenBrowser, Toast.LENGTH_SHORT).show()
             }
         },
         verticalAlignment = Alignment.CenterVertically,
