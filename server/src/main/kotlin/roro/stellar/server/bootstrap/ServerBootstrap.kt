@@ -15,6 +15,7 @@ object ServerBootstrap {
     @JvmStatic
     fun main(args: Array<String>) {
         DdmHandleAppName.setAppName("stellar_server", 0)
+        @Suppress("DEPRECATION")
         Looper.prepareMainLooper()
         StellarService()
         Looper.loop()

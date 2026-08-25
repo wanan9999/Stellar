@@ -174,7 +174,7 @@ class AdbMdns(
         
         executor.execute {
             try {
-                val host = resolvedService.host.hostAddress ?: "127.0.0.1"
+                val host = nsdHostAddress(resolvedService)
                 val isLocalService = NetworkInterface.getNetworkInterfaces()
                     .asSequence()
                     .any { networkInterface ->
@@ -267,7 +267,7 @@ class AdbMdns(
         }
 
         override fun onServiceResolved(nsdServiceInfo: NsdServiceInfo) {
-            Log.v(TAG, "解析服务成功: ${nsdServiceInfo.serviceName}, host=${nsdServiceInfo.host}, port=${nsdServiceInfo.port}")
+            Log.v(TAG, "解析服务成功: ${nsdServiceInfo.serviceName}, host=${nsdHostAddress(nsdServiceInfo)}, port=${nsdServiceInfo.port}")
             adbMdns.resolving = false
             adbMdns.onServiceResolved(nsdServiceInfo)
         }
@@ -284,6 +284,14 @@ class AdbMdns(
         const val RETRY_DELAY_MILLIS = 100L
         const val MAX_START_RETRY = 10
         const val MAX_REFRESH_COUNT = 100
+
+        fun nsdHostAddress(info: NsdServiceInfo): String {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                return info.hostAddresses.firstOrNull()?.hostAddress ?: "127.0.0.1"
+            }
+            @Suppress("DEPRECATION")
+            return info.host?.hostAddress ?: "127.0.0.1"
+        }
     }
 }
 

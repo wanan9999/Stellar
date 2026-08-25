@@ -1,7 +1,9 @@
 import com.android.build.gradle.internal.tasks.CompileArtProfileTask
+import org.gradle.api.file.FileSystemOperations
+import org.gradle.process.ExecOperations
 
-import java.nio.file.Paths
 import java.util.Properties
+import javax.inject.Inject
 
 plugins {
     id('com.android.application')
@@ -95,39 +97,60 @@ autoResConfig {
     generatedArrayFirstItem = "SYSTEM"
     generateLocaleConfig = true
 }
-def collapseReleaseResourceNames = task('collapseReleaseResourceNames').doLast {
-    def aapt2 = Paths.get(project.android.sdkDirectory.path, 'build-tools', project.android.buildToolsVersion, 'aapt2')
-    def zip = Paths.get(project.buildDir.path, 'intermediates',
-            'optimized_processed_res', 'release', 'optimizeReleaseResources', 'resources-release-optimize.ap_')
-    def optimized = new File("${zip}.opt")
-    def cmd = exec {
-        commandLine aapt2, 'optimize', '--collapse-resource-names',
-                '--resources-config-path', 'aapt2-resources.cfg',
-                '-o', optimized, zip
-        ignoreExitValue false
-    }
-    if (cmd.exitValue == 0) {
-        delete(zip)
-        optimized.renameTo("$zip")
+interface InjectedBuildOps {
+    @Inject ExecOperations getExecOperations()
+    @Inject FileSystemOperations getFileSystemOperations()
+}
+
+def buildOps = objects.newInstance(InjectedBuildOps)
+
+def collapseReleaseResourceNames = tasks.register('collapseReleaseResourceNames') {
+    def optimizedRes = layout.buildDirectory.file(
+            'intermediates/optimized_processed_res/release/optimizeReleaseResources/resources-release-optimize.ap_'
+    )
+    def configFile = layout.projectDirectory.file('aapt2-resources.cfg')
+    doLast {
+        def zip = optimizedRes.get().asFile
+        if (!zip.exists()) {
+            throw new GradleException("Optimized resources not found: ${zip}")
+        }
+        def buildToolsDir = new File(android.sdkDirectory, "build-tools/${android.buildToolsVersion}")
+        def aapt2 = new File(buildToolsDir, 'aapt2')
+        if (!aapt2.exists()) {
+            aapt2 = new File(buildToolsDir, 'aapt2.exe')
+        }
+        def optimized = new File(zip.parentFile, "${zip.name}.opt")
+        buildOps.execOperations.exec {
+            commandLine aapt2.absolutePath, 'optimize',
+                    '--collapse-resource-names',
+                    '--resources-config-path', configFile.asFile.absolutePath,
+                    '-o', optimized.absolutePath,
+                    zip.absolutePath
+        }
+        buildOps.fileSystemOperations.delete { delete zip }
+        if (!optimized.renameTo(zip)) {
+            throw new GradleException("Failed to replace optimized resources: ${zip}")
+        }
     }
 }
+
 afterEvaluate {
     tasks.findByName('optimizeReleaseResources')?.finalizedBy(collapseReleaseResourceNames)
     tasks.findByName('assembleRelease')?.doLast {
         def outDir = new File(rootDir, 'out')
         def mappingDir = new File(outDir, 'mapping')
         def apkDir = new File(outDir, 'apk')
-        def mapping = file("${layout.buildDirectory.get()}/outputs/mapping/release/mapping.txt")
+        def mapping = layout.buildDirectory.file('outputs/mapping/release/mapping.txt').get().asFile
         if (mapping.exists()) {
-            copy {
+            buildOps.fileSystemOperations.copy {
                 from mapping
                 into mappingDir
                 rename { "mapping-${rootProject.ext.versionName}.txt" }
             }
         }
-        def apk = fileTree("${layout.buildDirectory.get()}/outputs/apk/release").matching { include '*.apk' }
+        def apk = fileTree(layout.buildDirectory.dir('outputs/apk/release').get().asFile) { include '*.apk' }
         if (!apk.isEmpty()) {
-            copy {
+            buildOps.fileSystemOperations.copy {
                 from apk
                 into apkDir
                 rename { "stellar-v${rootProject.ext.versionName}-release.apk" }

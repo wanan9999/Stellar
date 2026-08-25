@@ -14,7 +14,7 @@ import kotlin.coroutines.resumeWithException
 
 object CarrierClient {
     private val mutex = Mutex()
-    @Volatile private var service: ICarrierOverrideService? = null
+    @Volatile private var bound: ICarrierOverrideService? = null
 
     private fun args() = UserServiceArgs.Builder(CarrierUserService::class.java)
         .processNameSuffix("carrier")
@@ -24,7 +24,7 @@ object CarrierClient {
         .build()
 
     suspend fun ensure(): ICarrierOverrideService = mutex.withLock {
-        val current = service
+        val current = bound
         if (current?.asBinder()?.pingBinder() == true) return current
         if (!Stellar.pingBinder()) error("Stellar 服务未运行")
         bindLocked()
@@ -32,24 +32,24 @@ object CarrierClient {
 
     fun unbind() {
         runCatching { StellarUserService.unbindUserService(args()) }
-        service = null
+        bound = null
     }
 
     private suspend fun bindLocked(): ICarrierOverrideService {
         return suspendCancellableCoroutine { cont ->
             StellarUserService.bindUserService(args(), object : StellarUserService.ServiceCallback {
-                override fun onServiceConnected(binder: IBinder) {
-                    val remote = ICarrierOverrideService.Stub.asInterface(binder)
-                    service = remote
+                override fun onServiceConnected(service: IBinder) {
+                    val remote = ICarrierOverrideService.Stub.asInterface(service)
+                    bound = remote
                     if (cont.isActive) cont.resume(remote)
                 }
 
                 override fun onServiceDisconnected() {
-                    service = null
+                    bound = null
                 }
 
                 override fun onServiceStartFailed(errorCode: Int, message: String) {
-                    service = null
+                    bound = null
                     if (cont.isActive) cont.resumeWithException(IllegalStateException("[$errorCode] $message"))
                 }
             })

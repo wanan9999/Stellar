@@ -889,11 +889,8 @@ internal class StarterViewModel(
     private fun isWifiConnected(): Boolean {
         val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
             ?: return false
-
-        return connectivityManager.allNetworks.any { network ->
-            connectivityManager.getNetworkCapabilities(network)
-                ?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
-        }
+        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        return capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
     }
 
     private val _steps = MutableStateFlow<List<StepData>>(emptyList())

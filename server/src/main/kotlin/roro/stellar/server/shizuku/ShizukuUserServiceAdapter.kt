@@ -8,6 +8,7 @@ import moe.shizuku.server.IShizukuServiceConnection
 import roro.stellar.server.userservice.UserServiceConstants
 import roro.stellar.server.userservice.UserServiceManager
 import roro.stellar.server.util.Logger
+import roro.stellar.shared.typedParcelable
 import java.util.concurrent.ConcurrentHashMap
 
 class ShizukuUserServiceAdapter(
@@ -27,7 +28,7 @@ class ShizukuUserServiceAdapter(
         callingUid: Int,
         callingPid: Int
     ): Int {
-        val componentName = options.getParcelable<ComponentName>(ShizukuApiConstants.UserServiceArgs.COMPONENT)
+        val componentName = options.typedParcelable<ComponentName>(ShizukuApiConstants.UserServiceArgs.COMPONENT)
             ?: throw IllegalArgumentException("component is null")
 
         val packageName = componentName.packageName
@@ -111,7 +112,7 @@ class ShizukuUserServiceAdapter(
         conn: IShizukuServiceConnection,
         options: Bundle
     ): Int {
-        val componentName = options.getParcelable<ComponentName>(ShizukuApiConstants.UserServiceArgs.COMPONENT)
+        val componentName = options.typedParcelable<ComponentName>(ShizukuApiConstants.UserServiceArgs.COMPONENT)
             ?: throw IllegalArgumentException("component is null")
 
         val packageName = componentName.packageName

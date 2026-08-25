@@ -2,6 +2,7 @@ package roro.stellar.manager.carrier
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.os.PersistableBundle
 import android.telephony.CarrierConfigManager
 import android.telephony.SubscriptionManager
@@ -51,18 +52,36 @@ internal object CarrierConfigWriter {
     }
 
     @SuppressLint("MissingPermission")
-    fun currentOverride(context: Context, subId: Int): Pair<String, String> {
-        val cm = context.getSystemService(CarrierConfigManager::class.java) ?: return "" to ""
-        val config = try {
+    private fun readConfig(cm: CarrierConfigManager, context: Context, subId: Int): PersistableBundle? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return try {
+                cm.getConfigForSubId(
+                    subId,
+                    CarrierKeys.SIM_COUNTRY_ISO,
+                    CarrierKeys.CARRIER_NAME_OVERRIDE,
+                    CarrierKeys.CARRIER_NAME
+                )
+            } catch (_: Exception) {
+                null
+            }
+        }
+        return try {
             val method = cm.javaClass.methods.firstOrNull {
                 it.name == "getConfigForSubId" && it.parameterCount == 2 &&
                     it.parameterTypes[0] == Int::class.javaPrimitiveType
             }
             (method?.invoke(cm, subId, context.packageName) as? PersistableBundle)
-                ?: cm.getConfigForSubId(subId)
+                ?: @Suppress("DEPRECATION") cm.getConfigForSubId(subId)
         } catch (_: Exception) {
+            @Suppress("DEPRECATION")
             cm.getConfigForSubId(subId)
-        } ?: return "" to ""
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    fun currentOverride(context: Context, subId: Int): Pair<String, String> {
+        val cm = context.getSystemService(CarrierConfigManager::class.java) ?: return "" to ""
+        val config = readConfig(cm, context, subId) ?: return "" to ""
         val iso = config.getString(CarrierKeys.SIM_COUNTRY_ISO).orEmpty()
         val name = if (config.getBoolean(CarrierKeys.CARRIER_NAME_OVERRIDE, false)) {
             config.getString(CarrierKeys.CARRIER_NAME).orEmpty()

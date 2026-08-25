@@ -50,12 +50,12 @@ fun StandardLargeTopAppBar(
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val colors = if (isLandscape) {
-        TopAppBarDefaults.largeTopAppBarColors(
+        TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surface,
             scrolledContainerColor = MaterialTheme.colorScheme.surface
         )
     } else {
-        TopAppBarDefaults.largeTopAppBarColors()
+        TopAppBarDefaults.topAppBarColors()
     }
 
     LargeTopAppBar(

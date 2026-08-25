@@ -6,7 +6,9 @@ import android.content.Context
 import android.content.pm.ProviderInfo
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 
 /**
@@ -41,7 +43,7 @@ open class ShizukuProvider : ContentProvider() {
     }
 
     private fun handleSendBinder(extras: Bundle) {
-        val container = extras.getParcelable<BinderContainer>(EXTRA_BINDER)
+        val container = extras.typedParcelable<BinderContainer>(EXTRA_BINDER)
         if (container?.binder != null) {
             Log.i(TAG, "收到 Shizuku Binder")
             ShizukuCompat.onBinderReceived(container.binder, context!!.packageName)
@@ -73,5 +75,14 @@ open class ShizukuProvider : ContentProvider() {
         private const val METHOD_SEND_BINDER = "sendBinder"
         private const val METHOD_GET_BINDER = "getBinder"
         private const val EXTRA_BINDER = "moe.shizuku.privileged.api.intent.extra.BINDER"
+    }
+}
+
+private inline fun <reified T : Parcelable> Bundle.typedParcelable(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelable(key, T::class.java)
+    } else {
+        @Suppress("DEPRECATION")
+        getParcelable(key)
     }
 }

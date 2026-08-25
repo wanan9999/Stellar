@@ -14,6 +14,7 @@ import android.os.UserHandle
 import android.os.UserHandleHidden
 import android.util.Log
 import com.stellar.api.BinderContainer
+import roro.stellar.shared.typedParcelable
 import dev.rikka.tools.refine.Refine
 import rikka.hidden.compat.ActivityManagerApis
 import roro.stellar.server.ServerConstants
@@ -33,6 +34,7 @@ object UserServiceStarter {
     @JvmStatic
     fun main(args: Array<String>) {
         if (Looper.getMainLooper() == null) {
+            @Suppress("DEPRECATION")
             Looper.prepareMainLooper()
         }
 
@@ -210,7 +212,7 @@ object UserServiceStarter {
 
             if (reply != null) {
                 reply.classLoader = BinderContainer::class.java.classLoader
-                val container = reply.getParcelable<BinderContainer>(EXTRA_BINDER)
+                val container = reply.typedParcelable<BinderContainer>(EXTRA_BINDER)
 
                 if (container?.binder != null && container.binder!!.pingBinder()) {
                     stellarBinder = container.binder
@@ -219,7 +221,7 @@ object UserServiceStarter {
                         exitProcess(0)
                     }, 0)
 
-                    val clientContainer = reply.getParcelable<BinderContainer>(EXTRA_CLIENT_BINDER)
+                    val clientContainer = reply.typedParcelable<BinderContainer>(EXTRA_CLIENT_BINDER)
                     if (clientContainer?.binder != null && clientContainer.binder!!.pingBinder()) {
                         clientBinder = clientContainer.binder
                         if (serviceMode == UserServiceConstants.MODE_ONE_TIME) {
