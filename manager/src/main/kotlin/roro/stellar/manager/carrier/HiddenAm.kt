@@ -7,6 +7,7 @@ import android.os.IBinder
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import roro.stellar.Stellar
 import roro.stellar.StellarBinderWrapper
+import roro.stellar.manager.util.UserHandleCompat
 
 internal object HiddenAm {
     fun activityManager(): Any {
@@ -54,7 +55,8 @@ internal object HiddenAm {
         am: Any,
         name: ComponentName,
         flags: Int,
-        arguments: Bundle
+        arguments: Bundle,
+        connection: Any = uiAutomationConnection()
     ): Boolean {
         val method = am.javaClass.methods.first {
             it.name == "startInstrumentation" && it.parameterCount == 8
@@ -67,11 +69,17 @@ internal object HiddenAm {
             flags,
             arguments,
             null,
-            null,
-            0,
+            connection,
+            UserHandleCompat.myUserId(),
             null
         )
         return result as? Boolean ?: true
+    }
+
+    fun uiAutomationConnection(): Any {
+        val ctor = Class.forName("android.app.UiAutomationConnection").getDeclaredConstructor()
+        ctor.isAccessible = true
+        return ctor.newInstance()
     }
 
     private fun invoke(method: java.lang.reflect.Method, target: Any, vararg args: Any?): Any? {

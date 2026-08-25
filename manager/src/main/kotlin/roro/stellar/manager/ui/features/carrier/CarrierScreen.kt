@@ -45,6 +45,7 @@ fun CarrierScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val selectedSim = state.sims.firstOrNull { it.subId == state.selectedSubId }
+    val overlayIso = selectedSim?.overlayIso.orEmpty()
     val carriers = CarrierPresets.carriersFor(state.selectedCountry)
     val otherLabel = stringResource(R.string.carrier_country_other)
     val countries = remember(otherLabel) {
@@ -95,11 +96,10 @@ fun CarrierScreen(
                     onSelect = { viewModel.selectSim(it.subId) },
                     enabled = state.sims.isNotEmpty(),
                     supportingText = selectedSim?.let { sim ->
-                        val iso = sim.overrideIso.ifEmpty { sim.runtimeIso.ifEmpty { sim.simIso } }
-                        if (sim.overrideIso.isNotEmpty()) {
-                            stringResource(R.string.carrier_sim_overlay, iso)
-                        } else if (iso.isNotEmpty()) {
-                            stringResource(R.string.carrier_sim_current, iso)
+                        if (sim.overlayIso.isNotEmpty()) {
+                            stringResource(R.string.carrier_sim_overlay, sim.overlayIso)
+                        } else if (sim.nativeIso.isNotEmpty()) {
+                            stringResource(R.string.carrier_sim_current, sim.nativeIso)
                         } else {
                             null
                         }
@@ -179,19 +179,15 @@ fun CarrierScreen(
                 }
             }
 
-            if (state.verifiedIso.isNotEmpty() || state.lastPersistent == false) {
+            if (overlayIso.isNotEmpty()) {
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        if (state.verifiedIso.isNotEmpty()) {
-                            Text(stringResource(R.string.carrier_status_active, state.verifiedIso))
-                        }
-                        if (state.lastPersistent == false) {
-                            Text(
-                                stringResource(R.string.carrier_non_persistent),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        Text(stringResource(R.string.carrier_status_active, overlayIso))
+                        Text(
+                            stringResource(R.string.carrier_non_persistent),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }

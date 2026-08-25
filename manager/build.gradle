@@ -36,7 +36,6 @@ android {
         buildConfig true
         prefab true
         compose true
-        aidl true
     }
 
     def signingPropsFile = rootProject.file("signing.properties")

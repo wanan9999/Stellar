@@ -5,52 +5,30 @@ import android.content.Context
 import android.os.Build
 import android.os.PersistableBundle
 import android.telephony.CarrierConfigManager
+import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
-import android.telephony.TelephonyManager
 import java.lang.reflect.InvocationTargetException
 
 internal object CarrierConfigWriter {
     private const val SETTLE_ATTEMPTS = 20
     private const val SETTLE_MS = 150L
 
-    /**
-     * Always `persistent=false`.
-     *
-     * On user builds since the 2026-01 telephony patch, `persistent=true` is either
-     * rejected with SecurityException or thrown **inside** the phone-process handler
-     * after the binder has already returned. The uncaught handler crash restarts
-     * `com.android.phone` and shows up here as a NullPointerException on the next
-     * telephony read. PixelIMS / vvb2060 Ims both write non-persistent only.
-     *
-     * `overrideConfig` itself is posted to a handler, so this waits until
-     * `getConfigForSubId` reflects the new overlay (or the absence of one).
-     */
     fun writeOverride(context: Context, subId: Int, bundle: PersistableBundle?) {
-        if (bundle == null) {
-            overrideConfig(context, subId, null, persistent = false)
-            overrideConfig(context, subId, maskBundle(), persistent = false)
-        } else {
-            overrideConfig(context, subId, bundle, persistent = false)
-        }
+        overrideConfig(context, subId, bundle, persistent = false)
+        if (bundle == null) notifyChanged(context, subId)
     }
 
     fun confirmOverride(context: Context, subId: Int, bundle: PersistableBundle?): Boolean {
         val expectedIso = bundle?.getString(CarrierKeys.SIM_COUNTRY_ISO).orEmpty()
-        return settled(context, subId, expectedIso, clearing = bundle == null)
-    }
-
-    fun applyAndConfirm(
-        context: Context,
-        subId: Int,
-        bundle: PersistableBundle?
-    ): Boolean {
-        writeOverride(context, subId, bundle)
-        if (!confirmOverride(context, subId, bundle)) {
-            val actual = currentOverride(context, subId).first
-            error(
-                if (bundle == null) "清除覆盖后系统仍返回 $actual"
-                else "写入后系统未读到覆盖 ${bundle.getString(CarrierKeys.SIM_COUNTRY_ISO)}（当前 $actual）"
-            )
+        repeat(SETTLE_ATTEMPTS) { attempt ->
+            val (iso, name) = currentOverride(context, subId)
+            val matched = if (bundle == null) {
+                iso.isEmpty() && name.isEmpty()
+            } else {
+                iso.equals(expectedIso, true)
+            }
+            if (matched) return true
+            if (attempt < SETTLE_ATTEMPTS - 1) Thread.sleep(SETTLE_MS)
         }
         return false
     }
@@ -62,6 +40,14 @@ internal object CarrierConfigWriter {
             invokeOverride(cm, subId, bundle, persistent)
         } catch (e: InvocationTargetException) {
             throw e.targetException ?: e
+        }
+    }
+
+    private fun notifyChanged(context: Context, subId: Int) {
+        val cm = context.getSystemService(CarrierConfigManager::class.java) ?: return
+        runCatching {
+            cm.javaClass.getMethod("notifyConfigChangedForSubId", Int::class.javaPrimitiveType)
+                .invoke(cm, subId)
         }
     }
 
@@ -91,46 +77,12 @@ internal object CarrierConfigWriter {
         }
     }
 
-    private fun maskBundle() = PersistableBundle().apply {
-        putInt(CarrierKeys.MARKER, 0)
-        putString(CarrierKeys.SIM_COUNTRY_ISO, "")
-        putBoolean(CarrierKeys.CARRIER_NAME_OVERRIDE, false)
-        putString(CarrierKeys.CARRIER_NAME, "")
-    }
-
-    private fun settled(
-        context: Context,
-        subId: Int,
-        expectedIso: String,
-        clearing: Boolean
-    ): Boolean {
-        repeat(SETTLE_ATTEMPTS) { attempt ->
-            val configIso = rawOverlayIso(context, subId)
-            if (clearing && configIso == null) return true
-            if (!clearing && configIso.equals(expectedIso, true)) return true
-            if (attempt < SETTLE_ATTEMPTS - 1) Thread.sleep(SETTLE_MS)
-        }
-        return false
-    }
-
-    private fun rawOverlayIso(context: Context, subId: Int): String? {
-        val cm = context.getSystemService(CarrierConfigManager::class.java) ?: return null
-        val config = readConfig(cm, context, subId) ?: return null
-        if (config.containsKey(CarrierKeys.MARKER) && config.getInt(CarrierKeys.MARKER, 0) != 1) {
-            return null
-        }
-        val iso = config.getString(CarrierKeys.SIM_COUNTRY_ISO).orEmpty()
-        if (config.containsKey(CarrierKeys.MARKER)) return iso
-        return iso.takeIf { it.length == 2 }
-    }
-
     @SuppressLint("MissingPermission")
     private fun readConfig(cm: CarrierConfigManager, context: Context, subId: Int): PersistableBundle? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             return try {
                 cm.getConfigForSubId(
                     subId,
-                    CarrierKeys.MARKER,
                     CarrierKeys.SIM_COUNTRY_ISO,
                     CarrierKeys.CARRIER_NAME_OVERRIDE,
                     CarrierKeys.CARRIER_NAME
@@ -147,8 +99,10 @@ internal object CarrierConfigWriter {
             (method?.invoke(cm, subId, context.packageName) as? PersistableBundle)
                 ?: @Suppress("DEPRECATION") cm.getConfigForSubId(subId)
         } catch (_: Exception) {
-            @Suppress("DEPRECATION")
-            cm.getConfigForSubId(subId)
+            runCatching {
+                @Suppress("DEPRECATION")
+                cm.getConfigForSubId(subId)
+            }.getOrNull()
         }
     }
 
@@ -156,7 +110,6 @@ internal object CarrierConfigWriter {
     fun currentOverride(context: Context, subId: Int): Pair<String, String> {
         val cm = context.getSystemService(CarrierConfigManager::class.java) ?: return "" to ""
         val config = readConfig(cm, context, subId) ?: return "" to ""
-        if (config.getInt(CarrierKeys.MARKER, 0) != 1) return "" to ""
         val iso = config.getString(CarrierKeys.SIM_COUNTRY_ISO).orEmpty()
         val name = if (config.getBoolean(CarrierKeys.CARRIER_NAME_OVERRIDE, false)) {
             config.getString(CarrierKeys.CARRIER_NAME).orEmpty()
@@ -167,28 +120,41 @@ internal object CarrierConfigWriter {
     }
 
     @SuppressLint("MissingPermission")
-    fun simCountryIso(context: Context, subId: Int): String {
-        val tm = context.getSystemService(TelephonyManager::class.java) ?: return ""
-        return try {
-            val forSub = tm.createForSubscriptionId(subId)
-            (forSub?.simCountryIso ?: tm.simCountryIso).orEmpty()
-        } catch (_: Exception) {
-            tm.simCountryIso.orEmpty()
+    fun nativeCountryIso(context: Context, subId: Int, info: SubscriptionInfo? = null): String {
+        val sub = info ?: activeSubscriptions(context).firstOrNull { it.subscriptionId == subId }
+        val mcc = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            sub?.mccString.orEmpty()
+        } else {
+            @Suppress("DEPRECATION")
+            sub?.mcc?.takeIf { it != 0 }?.toString().orEmpty()
         }
+        return isoForMcc(mcc)
+    }
+
+    private fun isoForMcc(mcc: String): String {
+        if (mcc.length < 3) return ""
+        return runCatching {
+            val clazz = Class.forName("com.android.internal.telephony.MccTable")
+            val method = clazz.methods.first {
+                it.name == "countryCodeForMcc" && it.parameterCount == 1
+            }
+            val arg: Any = if (method.parameterTypes[0] == Int::class.javaPrimitiveType) {
+                mcc.toInt()
+            } else {
+                mcc
+            }
+            (method.invoke(null, arg) as? String).orEmpty().lowercase()
+        }.getOrDefault("")
     }
 
     @SuppressLint("MissingPermission")
-    fun operator(context: Context, subId: Int): String {
-        val tm = context.getSystemService(TelephonyManager::class.java) ?: return ""
+    fun activeSubscriptions(context: Context): List<SubscriptionInfo> {
+        val sm = context.getSystemService(SubscriptionManager::class.java) ?: return emptyList()
         return try {
-            val forSub = tm.createForSubscriptionId(subId)
-            (forSub?.simOperator ?: tm.simOperator).orEmpty()
+            @Suppress("UNCHECKED_CAST")
+            (sm.activeSubscriptionInfoList as List<SubscriptionInfo>?) ?: emptyList()
         } catch (_: Exception) {
-            tm.simOperator.orEmpty()
+            emptyList()
         }
     }
-
-    @SuppressLint("MissingPermission")
-    fun activeSubscriptions(context: Context) =
-        context.getSystemService(SubscriptionManager::class.java)?.activeSubscriptionInfoList.orEmpty()
 }

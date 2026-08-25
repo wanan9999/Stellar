@@ -1,6 +1,7 @@
 package roro.stellar.manager.carrier
 
 import android.content.Context
+import android.telephony.SubscriptionManager
 import java.io.File
 import java.util.Properties
 
@@ -42,7 +43,12 @@ internal class CarrierStore(context: Context) {
     }
 
     fun setAutoReapply(enabled: Boolean) {
-        val current = load() ?: return
+        val current = load() ?: StoredOverlay(
+            subId = SubscriptionManager.INVALID_SUBSCRIPTION_ID,
+            iso = "",
+            name = "",
+            autoReapply = enabled
+        )
         save(current.copy(autoReapply = enabled))
     }
 
