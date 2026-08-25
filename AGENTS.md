@@ -74,7 +74,7 @@ shizuku/     → Shizuku 兼容层
 - 后台拉起路径依赖 `StellarSettings.LaunchMethod`，会按上次成功启动方式在 Root / ADB 之间选择
 - `LaunchMethod.UNKNOWN` 当前保留兼容回退，优先尝试 Root，失败后再尝试 ADB
 - JNI 层：`src/main/jni/` 包含 starter（服务启动器）、chid（降权工具）、adb_pairing、rish 等 native 组件
-- 多语言：英语（默认）、简体中文、繁体中文（TW/HK）、法语、俄语、阿拉伯语、西班牙语
+- 多语言：英语（默认）、简体中文
 
 ### Server 核心组件
 
