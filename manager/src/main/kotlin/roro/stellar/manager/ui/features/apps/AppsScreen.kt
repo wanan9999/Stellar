@@ -45,8 +45,6 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SelectAll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -786,20 +784,16 @@ fun AppListItem(
     )
 
     Box(modifier = Modifier.fillMaxWidth()) {
-        Card(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = cardPaddingStart),
-            shape = AppShape.shapes.cardMedium,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer
-            )
+                .padding(start = cardPaddingStart)
         ) {
             val rotation by animateFloatAsState(targetValue = if (expanded) 90f else 0f, label = "")
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .padding(vertical = 12.dp)
                     .combinedClickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
@@ -877,7 +871,7 @@ fun AppListItem(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp),
+                        .padding(start = 48.dp, top = 4.dp, bottom = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     PermissionItem(

@@ -15,10 +15,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,8 +44,6 @@ import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -96,7 +93,6 @@ import roro.stellar.manager.db.ConfigEntity
 import roro.stellar.manager.ktx.setComponentEnabled
 import roro.stellar.manager.receiver.BootCompleteReceiver
 import roro.stellar.manager.startup.boot.BootScriptManager
-import roro.stellar.manager.ui.components.IconContainer
 import roro.stellar.manager.ui.components.LocalScreenConfig
 import roro.stellar.manager.ui.components.SettingsClickableCard
 import roro.stellar.manager.ui.components.SettingsExpandableCard
@@ -269,7 +265,7 @@ fun SettingsScreen(
                 bottom = AppSpacing.screenBottomPadding
             ),
             horizontalArrangement = Arrangement.spacedBy(AppSpacing.cardSpacing),
-            verticalArrangement = Arrangement.spacedBy(AppSpacing.cardSpacing)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             item(span = { GridItemSpan(gridColumns) }) {
                 SettingsExpandableCard(
@@ -526,25 +522,18 @@ fun SettingsScreen(
             }
 
             item(span = { GridItemSpan(gridColumns) }) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer
-                    ),
-                    shape = AppShape.shapes.cardMedium
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
+                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            IconContainer(
-                                icon = Icons.Default.SettingsEthernet,
-                                modifier = Modifier.combinedClickable(
+                        Icon(
+                            imageVector = Icons.Default.SettingsEthernet,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .size(24.dp)
+                                .combinedClickable(
                                     onClick = {},
                                     onLongClick = {
                                         val ip = EnvironmentUtils.getWifiIpAddress()
@@ -560,52 +549,52 @@ fun SettingsScreen(
                                         }
                                     }
                                 )
+                        )
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.tcpip_port),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium
                             )
-
-                            Spacer(modifier = Modifier.width(12.dp))
-
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.tcpip_port),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = stringResource(R.string.tcpip_port_subtitle),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            Switch(
-                                checked = tcpipPortEnabled,
-                                onCheckedChange = { enabled ->
-                                    tcpipPortEnabled = enabled
-
-                                    if (enabled && tcpipPort.isEmpty()) {
-                                        val randomPort = PortBlacklistUtils.generateSafeRandomPort(1000, 9999, 100)
-                                        if (randomPort == -1) {
-                                            Toast.makeText(context, context.getString(R.string.cannot_generate_safe_port), Toast.LENGTH_SHORT).show()
-                                            tcpipPortEnabled = false
-                                        } else {
-                                            tcpipPort = randomPort.toString()
-                                            preferences.edit {
-                                                putBoolean(TCPIP_PORT_ENABLED, enabled)
-                                                putString(TCPIP_PORT, tcpipPort)
-                                            }
-                                            Toast.makeText(context, context.getString(R.string.auto_generated_safe_port, tcpipPort), Toast.LENGTH_SHORT).show()
-                                        }
-                                    } else {
-                                        preferences.edit {
-                                            putBoolean(TCPIP_PORT_ENABLED, enabled)
-                                        }
-                                    }
-                                }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = stringResource(R.string.tcpip_port_subtitle),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Switch(
+                            checked = tcpipPortEnabled,
+                            onCheckedChange = { enabled ->
+                                tcpipPortEnabled = enabled
+
+                                if (enabled && tcpipPort.isEmpty()) {
+                                    val randomPort = PortBlacklistUtils.generateSafeRandomPort(1000, 9999, 100)
+                                    if (randomPort == -1) {
+                                        Toast.makeText(context, context.getString(R.string.cannot_generate_safe_port), Toast.LENGTH_SHORT).show()
+                                        tcpipPortEnabled = false
+                                    } else {
+                                        tcpipPort = randomPort.toString()
+                                        preferences.edit {
+                                            putBoolean(TCPIP_PORT_ENABLED, enabled)
+                                            putString(TCPIP_PORT, tcpipPort)
+                                        }
+                                        Toast.makeText(context, context.getString(R.string.auto_generated_safe_port, tcpipPort), Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    preferences.edit {
+                                        putBoolean(TCPIP_PORT_ENABLED, enabled)
+                                    }
+                                }
+                            }
+                        )
+                    }
 
                         AnimatedVisibility(visible = tcpipPortEnabled) {
                             Row(
@@ -665,7 +654,6 @@ fun SettingsScreen(
                                 }
                             }
                         }
-                    }
                 }
             }
 
@@ -679,111 +667,45 @@ fun SettingsScreen(
             }
 
             item(span = { GridItemSpan(gridColumns) }) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer
-                    ),
-                    shape = AppShape.shapes.cardMedium
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                     Row(
-                         verticalAlignment = Alignment.CenterVertically,
-                         horizontalArrangement = Arrangement.spacedBy(12.dp)
-                     ) {
-                         Box(
-                             modifier = Modifier
-                                 .size(40.dp)
-                                 .background(
-                                     color = MaterialTheme.colorScheme.primaryContainer,
-                                     shape = AppShape.shapes.iconSmall
-                                 ),
-                             contentAlignment = Alignment.Center
-                         ) {
-                             Icon(
-                                 imageVector = Icons.Default.Info,
-                                 contentDescription = null,
-                                 tint = MaterialTheme.colorScheme.primary,
-                                 modifier = Modifier.size(22.dp)
-                             )
-                         }
-                         
-                         Column(modifier = Modifier.weight(1f)) {
-                             Text(
-                                 text = stringResource(R.string.project_declaration),
-                                 style = MaterialTheme.typography.titleMedium,
-                                 fontWeight = FontWeight.Bold
-                             )
-                             Text(
-                                 text = stringResource(R.string.current_version, BuildConfig.VERSION_NAME),
-                                 style = MaterialTheme.typography.bodySmall,
-                                 color = MaterialTheme.colorScheme.onSurfaceVariant
-                             )
-                         }
-                     }
-                     
-                     Spacer(modifier = Modifier.height(12.dp))
-                     
-                     Text(
-                         text = stringResource(R.string.project_declaration_content),
-                         style = MaterialTheme.typography.bodyMedium,
-                         color = MaterialTheme.colorScheme.onSurfaceVariant
-                     )
-                     
-                     Spacer(modifier = Modifier.height(12.dp))
-                     
-                     Row(
-                         modifier = Modifier.fillMaxWidth(),
-                         horizontalArrangement = Arrangement.spacedBy(8.dp)
-                     ) {
-                         Button(
-                             onClick = {
-                                 val intent = Intent(Intent.ACTION_VIEW, "https://github.com/RikkaApps/Shizuku".toUri())
-                                 try {
-                                     context.startActivity(intent)
-                                 } catch (_: Exception) {
-                                     Toast.makeText(context, context.getString(R.string.cannot_open_browser), Toast.LENGTH_SHORT).show()
-                                 }
-                             },
-                             modifier = Modifier.weight(1f),
-                             shape = AppShape.shapes.buttonMedium
-                         ) {
-                             Icon(
-                                 painter = painterResource(R.drawable.ic_github),
-                                 contentDescription = null,
-                                 modifier = Modifier.size(18.dp)
-                             )
-                             Spacer(modifier = Modifier.width(8.dp))
-                             Text("Shizuku", modifier = Modifier.padding(vertical = 4.dp))
-                         }
-
-                         Button(
-                             onClick = {
-                                 val intent = Intent(Intent.ACTION_VIEW, "https://github.com/roro2239/Stellar".toUri())
-                                 try {
-                                     context.startActivity(intent)
-                                 } catch (_: Exception) {
-                                     Toast.makeText(context, context.getString(R.string.cannot_open_browser), Toast.LENGTH_SHORT).show()
-                                 }
-                             },
-                             modifier = Modifier.weight(1f),
-                             shape = AppShape.shapes.buttonMedium
-                         ) {
-                             Icon(
-                                 painter = painterResource(R.drawable.ic_github),
-                                 contentDescription = null,
-                                 modifier = Modifier.size(18.dp)
-                             )
-                             Spacer(modifier = Modifier.width(8.dp))
-                             Text("Stellar", modifier = Modifier.padding(vertical = 4.dp))
-                         }
-                     }
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.project_declaration),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = stringResource(R.string.current_version, BuildConfig.VERSION_NAME),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    Text(
+                        text = stringResource(R.string.project_declaration_content),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                        RepoLink("Shizuku", "https://github.com/RikkaApps/Shizuku")
+                        RepoLink("Stellar", "https://github.com/roro2239/Stellar")
+                    }
                 }
-            }
             }
         }
     }
@@ -1004,6 +926,34 @@ fun SettingsScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RepoLink(label: String, url: String) {
+    val context = LocalContext.current
+    Row(
+        modifier = Modifier.clickable {
+            try {
+                context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+            } catch (_: Exception) {
+                Toast.makeText(context, context.getString(R.string.cannot_open_browser), Toast.LENGTH_SHORT).show()
+            }
+        },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_github),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }
 

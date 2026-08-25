@@ -2,26 +2,19 @@ package roro.stellar.manager.ui.features.carrier
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -32,6 +25,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -45,7 +41,7 @@ import roro.stellar.manager.ui.navigation.components.StandardLargeTopAppBar
 import roro.stellar.manager.ui.navigation.components.createTopAppBarScrollBehavior
 import roro.stellar.manager.ui.theme.AppSpacing
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarrierScreen(
     topAppBarState: TopAppBarState,
@@ -53,6 +49,8 @@ fun CarrierScreen(
 ) {
     val scrollBehavior = createTopAppBarScrollBehavior(topAppBarState)
     val state by viewModel.state.collectAsState()
+    val selectedSim = state.sims.firstOrNull { it.subId == state.selectedSubId }
+    val carriers = CarrierPresets.carriersFor(state.selectedCountry)
 
     LaunchedEffect(Unit) { viewModel.refresh() }
 
@@ -67,8 +65,7 @@ fun CarrierScreen(
             )
         }
     ) { paddingValues ->
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(1),
+        LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 top = paddingValues.calculateTopPadding() + AppSpacing.topBarContentSpacing,
@@ -76,42 +73,54 @@ fun CarrierScreen(
                 start = AppSpacing.screenHorizontalPadding,
                 end = AppSpacing.screenHorizontalPadding
             ),
-            verticalArrangement = Arrangement.spacedBy(AppSpacing.itemSpacing)
+            verticalArrangement = Arrangement.spacedBy(AppSpacing.sectionSpacing)
         ) {
             if (state.loading) {
                 item { LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) }
             }
 
             item {
-                StatusCard(state)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        if (state.serviceRunning) {
+                            stringResource(R.string.carrier_service_ready)
+                        } else {
+                            stringResource(R.string.carrier_service_missing)
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium
+                    )
+                    if (state.error.isNotEmpty()) {
+                        Text(state.error, color = MaterialTheme.colorScheme.error)
+                    }
+                }
             }
 
             item {
-                Text(stringResource(R.string.carrier_section_sim), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            }
-            items(state.sims.size, span = { GridItemSpan(1) }) { index ->
-                val sim = state.sims[index]
-                SimCard(
-                    sim = sim,
-                    selected = sim.subId == state.selectedSubId,
-                    onClick = { viewModel.selectSim(sim.subId) }
+                DropdownField(
+                    label = stringResource(R.string.carrier_section_sim),
+                    selectedText = selectedSim?.let { simLabel(it) }.orEmpty(),
+                    options = state.sims,
+                    optionText = ::simLabel,
+                    onSelect = { viewModel.selectSim(it.subId) },
+                    enabled = state.sims.isNotEmpty(),
+                    supportingText = selectedSim?.let(::simDetails)
                 )
             }
 
             item {
-                Text(stringResource(R.string.carrier_section_country), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                DropdownField(
+                    label = stringResource(R.string.carrier_section_country),
+                    selectedText = CarrierPresets.countries
+                        .firstOrNull { !state.useCustomIso && it.code == state.selectedCountry }
+                        ?.let { "${it.name} ${it.code}" }
+                        ?: state.selectedCountry,
+                    options = CarrierPresets.countries,
+                    optionText = { "${it.name} ${it.code}" },
+                    onSelect = { viewModel.selectCountry(it.code) }
+                )
             }
-            item {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CarrierPresets.countries.forEach { country ->
-                        FilterChip(
-                            selected = !state.useCustomIso && state.selectedCountry == country.code,
-                            onClick = { viewModel.selectCountry(country.code) },
-                            label = { Text("${country.name} ${country.code}") }
-                        )
-                    }
-                }
-            }
+
             item {
                 OutlinedTextField(
                     value = if (state.useCustomIso) state.customIso else state.selectedCountry,
@@ -123,32 +132,35 @@ fun CarrierScreen(
             }
 
             item {
-                Text(stringResource(R.string.carrier_section_name), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            }
-            item {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CarrierPresets.carriersFor(state.selectedCountry).forEach { carrier ->
-                        FilterChip(
-                            selected = state.selectedCarrier == carrier.name,
-                            onClick = { viewModel.selectCarrier(carrier.name) },
-                            label = { Text(carrier.name) }
-                        )
-                    }
-                }
+                DropdownField(
+                    label = stringResource(R.string.carrier_section_name),
+                    selectedText = state.selectedCarrier,
+                    options = carriers,
+                    optionText = { it.name },
+                    onSelect = { viewModel.selectCarrier(it.name) },
+                    enabled = carriers.isNotEmpty()
+                )
             }
 
             item {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(stringResource(R.string.carrier_auto_reapply), fontWeight = FontWeight.Medium)
-                        Text(stringResource(R.string.carrier_auto_reapply_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            stringResource(R.string.carrier_auto_reapply_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                     Switch(checked = state.autoReapply, onCheckedChange = viewModel::setAutoReapply)
                 }
             }
 
             item {
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Button(
                         onClick = viewModel::apply,
                         enabled = !state.loading && state.serviceRunning && state.selectedSubId > 0,
@@ -167,7 +179,21 @@ fun CarrierScreen(
             }
 
             if (state.lastMessage.isNotEmpty() || state.verifiedIso.isNotEmpty()) {
-                item { ResultCard(state) }
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(stringResource(R.string.carrier_section_verify), fontWeight = FontWeight.Medium)
+                        if (state.lastMessage.isNotEmpty()) Text(state.lastMessage)
+                        if (state.lastStrategy.isNotEmpty()) Text("策略: ${state.lastStrategy}")
+                        state.lastPersistent?.let {
+                            Text(
+                                if (it) stringResource(R.string.carrier_persistent)
+                                else stringResource(R.string.carrier_non_persistent)
+                            )
+                        }
+                        Text("getSimCountryIso: ${state.verifiedIso.ifEmpty { "-" }}")
+                        Text("MCC/MNC: ${state.verifiedOperator.ifEmpty { "-" }}")
+                    }
+                }
             }
 
             item {
@@ -177,57 +203,63 @@ fun CarrierScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            item { Spacer(Modifier.height(8.dp)) }
         }
     }
 }
 
-@Composable
-private fun StatusCard(state: CarrierUiState) {
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)) {
-        Column(Modifier.padding(AppSpacing.cardPadding), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(
-                if (state.serviceRunning) stringResource(R.string.carrier_service_ready) else stringResource(R.string.carrier_service_missing),
-                fontWeight = FontWeight.SemiBold
-            )
-            if (state.error.isNotEmpty()) {
-                Text(state.error, color = MaterialTheme.colorScheme.error)
-            }
-        }
+private fun simLabel(sim: SimItem) =
+    "SIM ${sim.slot}  ·  ${sim.displayName.ifEmpty { "subId ${sim.subId}" }}"
+
+private fun simDetails(sim: SimItem): String {
+    val override = buildString {
+        append("覆盖 ISO ${sim.overrideIso.ifEmpty { "-" }}")
+        if (sim.overrideName.isNotEmpty()) append("  ·  ${sim.overrideName}")
+        append("  ·  运行时 ${sim.runtimeIso.ifEmpty { "-" }}")
     }
+    return "MCC/MNC ${sim.mccMnc.ifEmpty { "-" }}  ·  SIM ISO ${sim.simIso.ifEmpty { "-" }}\n$override"
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SimCard(sim: SimItem, selected: Boolean, onClick: () -> Unit) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .selectable(selected = selected, onClick = onClick)
+private fun <T> DropdownField(
+    label: String,
+    selectedText: String,
+    options: List<T>,
+    optionText: (T) -> String,
+    onSelect: (T) -> Unit,
+    enabled: Boolean = true,
+    supportingText: String? = null
+) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { if (enabled) expanded = it }
     ) {
-        Column(Modifier.padding(AppSpacing.cardPadding), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("SIM ${sim.slot}  ·  ${sim.displayName.ifEmpty { "subId ${sim.subId}" }}", fontWeight = FontWeight.SemiBold)
-            Text("MCC/MNC ${sim.mccMnc.ifEmpty { "-" }}  ·  SIM ISO ${sim.simIso.ifEmpty { "-" }}")
-            Text("覆盖 ISO ${sim.overrideIso.ifEmpty { "-" }}  ·  运行时 ${sim.runtimeIso.ifEmpty { "-" }}")
-            if (sim.overrideName.isNotEmpty()) {
-                Text("覆盖名称 ${sim.overrideName}")
+        OutlinedTextField(
+            value = selectedText,
+            onValueChange = {},
+            readOnly = true,
+            enabled = enabled,
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded && enabled) },
+            supportingText = supportingText?.let { { Text(it) } },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled)
+        )
+        ExposedDropdownMenu(
+            expanded = expanded && enabled,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(optionText(option)) },
+                    onClick = {
+                        onSelect(option)
+                        expanded = false
+                    }
+                )
             }
-        }
-    }
-}
-
-@Composable
-private fun ResultCard(state: CarrierUiState) {
-    Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
-        Column(Modifier.padding(AppSpacing.cardPadding), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(stringResource(R.string.carrier_section_verify), fontWeight = FontWeight.SemiBold)
-            if (state.lastMessage.isNotEmpty()) Text(state.lastMessage)
-            if (state.lastStrategy.isNotEmpty()) Text("策略: ${state.lastStrategy}")
-            state.lastPersistent?.let { Text(if (it) stringResource(R.string.carrier_persistent) else stringResource(R.string.carrier_non_persistent)) }
-            Text("getSimCountryIso: ${state.verifiedIso.ifEmpty { "-" }}")
-            Text("MCC/MNC: ${state.verifiedOperator.ifEmpty { "-" }}")
         }
     }
 }

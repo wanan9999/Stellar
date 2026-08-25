@@ -35,7 +35,6 @@ import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -254,6 +253,7 @@ fun AdbRestrictedHintCard(
     onViewClick: () -> Unit
 ) {
     Card(
+        onClick = onViewClick,
         modifier = Modifier.fillMaxWidth(),
         shape = AppShape.shapes.cardLarge,
         colors = CardDefaults.cardColors(
@@ -299,12 +299,11 @@ fun AdbRestrictedHintCard(
                 )
             }
 
-            Button(
-                onClick = onViewClick,
-                shape = AppShape.shapes.buttonMedium
-            ) {
-                Text(text = stringResource(R.string.view))
-            }
+            Text(
+                text = stringResource(R.string.view),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.error
+            )
         }
     }
 }
@@ -454,178 +453,81 @@ fun StartRootCard(
     isRestart: Boolean,
     onStartClick: () -> Unit = {}
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = AppShape.shapes.cardLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = AppShape.shapes.iconSmall
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Tag,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = if (isRestart) stringResource(R.string.root_restart) else stringResource(R.string.root_start),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.root_start_subtitle),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Button(
-                onClick = onStartClick,
-                shape = AppShape.shapes.buttonMedium
-            ) {
-                Text(text = if (isRestart) stringResource(R.string.restart) else stringResource(R.string.start))
-            }
-        }
-    }
+    StartActionRow(
+        icon = Icons.Default.Tag,
+        title = if (isRestart) stringResource(R.string.root_restart) else stringResource(R.string.root_start),
+        subtitle = stringResource(R.string.root_start_subtitle),
+        actionLabel = if (isRestart) stringResource(R.string.restart) else stringResource(R.string.start),
+        onClick = onStartClick
+    )
 }
 
 @Composable
 fun StartWirelessAdbCard(
     onStartClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = AppShape.shapes.cardLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = AppShape.shapes.iconSmall
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Wifi,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.wireless_debugging),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.wireless_debugging_subtitle),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Button(
-                onClick = onStartClick,
-                shape = AppShape.shapes.buttonMedium
-            ) {
-                Text(text = stringResource(R.string.start))
-            }
-        }
-    }
+    StartActionRow(
+        icon = Icons.Default.Wifi,
+        title = stringResource(R.string.wireless_debugging),
+        subtitle = stringResource(R.string.wireless_debugging_subtitle),
+        actionLabel = stringResource(R.string.start),
+        onClick = onStartClick
+    )
 }
 
 @Composable
 fun StartWiredAdbCard(
     onButtonClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = AppShape.shapes.cardLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
+    StartActionRow(
+        icon = Icons.Default.Cable,
+        title = stringResource(R.string.wired_adb),
+        subtitle = stringResource(R.string.wired_adb_subtitle),
+        actionLabel = stringResource(R.string.view),
+        onClick = onButtonClick
+    )
+}
+
+@Composable
+private fun StartActionRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    actionLabel: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = AppShape.shapes.iconSmall
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Cable,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(R.string.wired_adb),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.wired_adb_subtitle),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Button(
-                onClick = onButtonClick,
-                shape = AppShape.shapes.buttonMedium
-            ) {
-                Text(text = stringResource(R.string.view))
-            }
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(24.dp)
+        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
+        Text(
+            text = actionLabel,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary
+        )
     }
 }

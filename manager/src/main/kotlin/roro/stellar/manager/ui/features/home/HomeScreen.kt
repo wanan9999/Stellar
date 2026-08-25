@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import roro.stellar.manager.compat.BuildUtils.atLeast30
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -103,37 +105,33 @@ fun HomeScreen(
             }
 
             if (isPrimaryUser) {
-                if (hasRoot) {
-                    item {
-                        StartRootCard(
-                            isRestart = isRunning && isRoot,
-                            onStartClick = { onNavigateToStarter(true, null, 0, false) }
+                item(span = { GridItemSpan(gridColumns) }) {
+                    Column {
+                        if (hasRoot) {
+                            StartRootCard(
+                                isRestart = isRunning && isRoot,
+                                onStartClick = { onNavigateToStarter(true, null, 0, false) }
+                            )
+                            HorizontalDivider()
+                        }
+                        if (atLeast30 || EnvironmentUtils.getAdbTcpPort() > 0) {
+                            StartWirelessAdbCard(
+                                onStartClick = { onNavigateToStarter(false, "127.0.0.1", 0, false) }
+                            )
+                            HorizontalDivider()
+                        }
+                        StartWiredAdbCard(
+                            onButtonClick = { showAdbCommandDialog = true }
                         )
-                    }
-                }
-
-                if (atLeast30 || EnvironmentUtils.getAdbTcpPort() > 0) {
-                    item {
-                        StartWirelessAdbCard(
-                            onStartClick = { onNavigateToStarter(false, "127.0.0.1", 0, false) }
-                        )
-                    }
-                }
-
-                item {
-                    StartWiredAdbCard(
-                        onButtonClick = { showAdbCommandDialog = true }
-                    )
-                }
-
-                if (!hasRoot) {
-                    item {
-                        StartRootCard(
-                            isRestart = isRunning && isRoot,
-                            onStartClick = {
-                                Toast.makeText(context, context.getString(R.string.no_root_permission), Toast.LENGTH_SHORT).show()
-                            }
-                        )
+                        if (!hasRoot) {
+                            HorizontalDivider()
+                            StartRootCard(
+                                isRestart = isRunning && isRoot,
+                                onStartClick = {
+                                    Toast.makeText(context, context.getString(R.string.no_root_permission), Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
                     }
                 }
             }
