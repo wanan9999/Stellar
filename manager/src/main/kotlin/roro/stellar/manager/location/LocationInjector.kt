@@ -3,6 +3,7 @@ package roro.stellar.manager.location
 import android.content.Context
 import android.location.Location
 import android.location.LocationManager
+import android.location.provider.ProviderProperties
 import android.os.SystemClock
 import roro.stellar.manager.compat.BuildUtils
 import java.util.Locale
@@ -70,7 +71,18 @@ internal object LocationInjector {
         attached.clear()
         providers.forEach { name ->
             runCatching {
-                lm.addTestProvider(name, false, false, false, false, true, true, true, 1, 1)
+                lm.addTestProvider(
+                    name,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    true,
+                    true,
+                    ProviderProperties.POWER_USAGE_LOW,
+                    ProviderProperties.ACCURACY_FINE
+                )
             }
             if (runCatching { lm.setTestProviderEnabled(name, true) }.isSuccess) {
                 attached += name

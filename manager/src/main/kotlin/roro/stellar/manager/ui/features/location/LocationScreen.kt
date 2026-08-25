@@ -67,6 +67,7 @@ fun LocationScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val copiedText = stringResource(R.string.copied_to_clipboard)
     val lifecycleOwner = LocalLifecycleOwner.current
     var showSave by remember { mutableStateOf(false) }
     var pendingDelete by remember { mutableStateOf<SavedPlace?>(null) }
@@ -229,7 +230,7 @@ fun LocationScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.clickable {
                             ClipboardUtils.put(context, "${state.lat}, ${state.lng}")
-                            Toast.makeText(context, context.getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, copiedText, Toast.LENGTH_SHORT).show()
                         }
                     )
                     Row(

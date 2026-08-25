@@ -193,7 +193,7 @@ internal object PerfCollector {
         val netSec = if (prevUidAt == 0L) 0.0 else (now - prevUidAt).coerceAtLeast(1L) / 1000.0
         val downMap = HashMap<String, Long>()
         val upMap = HashMap<String, Long>()
-        if (netKnown && uidNet != null && netSec > 0.0) {
+        if (uidNet != null && netSec > 0.0) {
             uidOf.entries.groupBy({ it.value }, { it.key }).forEach { (uid, pkgs) ->
                 val cur = uidNet[uid] ?: return@forEach
                 val pRx = prevUidRx[uid] ?: return@forEach
@@ -207,7 +207,7 @@ internal object PerfCollector {
                 }
             }
         }
-        if (netKnown && uidNet != null) {
+        if (uidNet != null) {
             prevUidRx.clear()
             prevUidTx.clear()
             uidNet.forEach { (uid, bytes) ->
