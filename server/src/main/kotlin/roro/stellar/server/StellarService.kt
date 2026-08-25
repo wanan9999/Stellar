@@ -23,6 +23,7 @@ import roro.stellar.server.grant.ManagerGrantHelper
 import roro.stellar.server.ktx.mainHandler
 import roro.stellar.server.monitor.PackageMonitor
 import roro.stellar.server.query.ApplicationQueryHelper
+import roro.stellar.server.query.PerfProbe
 import roro.stellar.server.service.StellarServiceCore
 import roro.stellar.server.shizuku.ShizukuApiConstants
 import roro.stellar.server.shizuku.ShizukuCallbackFactory
@@ -482,6 +483,34 @@ class StellarService : IStellarService.Stub() {
             reply?.let {
                 it.writeNoException()
                 result.writeToParcel(it, Parcelable.PARCELABLE_WRITE_RETURN_VALUE)
+            }
+            return true
+        } else if (code == ServerConstants.BINDER_TRANSACTION_perfSnapshot) {
+            data.enforceInterface(StellarApiConstants.BINDER_DESCRIPTOR)
+            val sample = PerfProbe.collect()
+            reply?.let { parcel ->
+                parcel.writeNoException()
+                parcel.writeString(sample.cpuLine)
+                parcel.writeInt(sample.procs.size)
+                sample.procs.forEach { proc ->
+                    parcel.writeInt(proc.pid)
+                    parcel.writeInt(proc.uid)
+                    parcel.writeLong(proc.rssKb)
+                    parcel.writeLong(proc.jiffies)
+                    parcel.writeString(proc.cmd)
+                }
+                val net = sample.net
+                if (net == null) {
+                    parcel.writeInt(0)
+                } else {
+                    parcel.writeInt(1)
+                    parcel.writeInt(net.size)
+                    net.forEach { (uid, bytes) ->
+                        parcel.writeInt(uid)
+                        parcel.writeLong(bytes.first)
+                        parcel.writeLong(bytes.second)
+                    }
+                }
             }
             return true
         } else if (code == StellarApiConstants.BINDER_TRANSACTION_transact) {

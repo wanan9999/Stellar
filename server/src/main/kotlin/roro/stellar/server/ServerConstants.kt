@@ -9,4 +9,5 @@ object ServerConstants {
         "$MANAGER_APPLICATION_ID.intent.action.REQUEST_PERMISSION"
 
     const val BINDER_TRANSACTION_getApplications: Int = 10001
+    const val BINDER_TRANSACTION_perfSnapshot: Int = 10002
 }

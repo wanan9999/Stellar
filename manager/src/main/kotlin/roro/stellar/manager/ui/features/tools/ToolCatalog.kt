@@ -4,13 +4,18 @@ import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MyLocation
 import androidx.compose.material.icons.outlined.SimCard
+import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import roro.stellar.manager.R
 import roro.stellar.manager.carrier.CarrierController
 import roro.stellar.manager.location.LocationController
+import roro.stellar.manager.perf.PerfCollector
+import roro.stellar.manager.perf.formatBytes
+import roro.stellar.manager.perf.formatPercent
 import roro.stellar.manager.ui.features.carrier.CarrierScreen
 import roro.stellar.manager.ui.features.location.LocationScreen
+import roro.stellar.manager.ui.features.perf.PerfScreen
 
 data class ToolSpec(
     val id: String,
@@ -61,5 +66,21 @@ object ToolCatalog {
         content = { onBack -> LocationScreen(onBack = onBack) }
     )
 
-    val all = listOf(Sim, Location)
+    val Perf = ToolSpec(
+        id = "perf",
+        route = "tool_perf",
+        titleRes = R.string.tool_perf,
+        icon = Icons.Outlined.Speed,
+        subtitle = { context ->
+            val g = PerfCollector.gauges()
+            context.getString(
+                R.string.tool_perf_subtitle,
+                formatPercent(g.cpuPercent),
+                formatBytes(g.ramUsedBytes)
+            )
+        },
+        content = { onBack -> PerfScreen(onBack = onBack) }
+    )
+
+    val all = listOf(Sim, Location, Perf)
 }

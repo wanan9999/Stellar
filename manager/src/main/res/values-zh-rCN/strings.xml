@@ -368,6 +368,17 @@
     <string name="tool_sim_idle">未覆盖</string>
     <string name="tool_location_idle">未模拟</string>
     <string name="tool_location_active">模拟中 · %1$s</string>
+    <string name="tool_perf">运行占用</string>
+    <string name="tool_perf_subtitle">CPU %1$s · 内存 %2$s</string>
+    <string name="perf_cpu">CPU</string>
+    <string name="perf_ram">内存</string>
+    <string name="perf_net">网速</string>
+    <string name="perf_net_up">↑ %1$s</string>
+    <string name="perf_filter_all">全部</string>
+    <string name="perf_filter_user">用户</string>
+    <string name="perf_filter_system">系统</string>
+    <string name="perf_running">正在运行 · %1$d</string>
+    <string name="perf_empty">没有正在运行的应用</string>
 
     <string name="carrier_section_sim">SIM 卡</string>
     <string name="carrier_section_country">国家</string>

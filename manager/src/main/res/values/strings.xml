@@ -370,6 +370,17 @@
     <string name="tool_sim_idle">No overlay</string>
     <string name="tool_location_idle">Not mocking</string>
     <string name="tool_location_active">Mocking · %1$s</string>
+    <string name="tool_perf">Runtime</string>
+    <string name="tool_perf_subtitle">CPU %1$s · RAM %2$s</string>
+    <string name="perf_cpu">CPU</string>
+    <string name="perf_ram">RAM</string>
+    <string name="perf_net">Network</string>
+    <string name="perf_net_up">↑ %1$s</string>
+    <string name="perf_filter_all">All</string>
+    <string name="perf_filter_user">User</string>
+    <string name="perf_filter_system">System</string>
+    <string name="perf_running">Running · %1$d</string>
+    <string name="perf_empty">No running apps.</string>
 
     <!-- Carrier overlay -->
     <string name="carrier_section_sim">SIM</string>
