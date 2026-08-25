@@ -39,7 +39,8 @@ data class LocationUiState(
     val favorites: List<SavedPlace> = emptyList(),
     val searchQuery: String = "",
     val searchResults: List<SearchHit> = emptyList(),
-    val searching: Boolean = false
+    val searching: Boolean = false,
+    val reduceJump: Boolean = false
 )
 
 @OptIn(FlowPreview::class)
@@ -59,7 +60,9 @@ class LocationViewModel : ViewModel() {
                         lat = snap.lat,
                         lng = snap.lng,
                         label = snap.label,
-                        zoom = snap.zoom
+                        zoom = snap.zoom,
+                        reduceJump = snap.reduceJump,
+                        error = if (snap.error.isNotEmpty()) mapError(snap.error) else it.error
                     )
                 }
             }
@@ -99,12 +102,18 @@ class LocationViewModel : ViewModel() {
             runCatching {
                 withContext(Dispatchers.IO) { LocationController.prepare() }
             }.onSuccess { ready ->
+                val injectError = LocationController.snapshot.value.error
                 _state.update {
                     it.copy(
                         loading = false,
                         ready = ready,
                         needsPermission = !LocationController.hasLocationPermission(),
-                        error = if (ready) "" else application.getString(R.string.location_permission_needed)
+                        reduceJump = LocationController.snapshot.value.reduceJump,
+                        error = when {
+                            injectError.isNotEmpty() -> mapError(injectError)
+                            ready -> ""
+                            else -> application.getString(R.string.location_permission_needed)
+                        }
                     )
                 }
             }.onFailure { e ->
@@ -168,7 +177,8 @@ class LocationViewModel : ViewModel() {
                         loading = false,
                         error = when (e.message) {
                             "permission" -> application.getString(R.string.location_permission_needed)
-                            "providers" -> application.getString(R.string.location_inject_failed)
+                            "providers", "cmd_location", "inject", "timeout" ->
+                                application.getString(R.string.location_inject_failed)
                             else -> e.message ?: e.javaClass.simpleName
                         }
                     )
@@ -192,6 +202,19 @@ class LocationViewModel : ViewModel() {
     fun removeFavorite(place: SavedPlace) {
         LocationController.removeFavorite(place)
         _state.update { it.copy(favorites = LocationController.favorites()) }
+    }
+
+    fun setReduceJump(enabled: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching { LocationController.setReduceJump(enabled) }
+        }
+    }
+
+    private fun mapError(code: String): String = when (code) {
+        "service" -> application.getString(R.string.tools_service_missing)
+        "mock_app" -> application.getString(R.string.location_mock_failed)
+        "permission" -> application.getString(R.string.location_permission_needed)
+        else -> application.getString(R.string.location_inject_failed)
     }
 
     private fun search(text: String) {

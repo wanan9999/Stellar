@@ -26,7 +26,9 @@ data class LocationSnapshot(
     val lng: Double = DEFAULT_LNG,
     val label: String = "",
     val zoom: Double = DEFAULT_ZOOM,
-    val mockAppReady: Boolean = false
+    val mockAppReady: Boolean = false,
+    val reduceJump: Boolean = false,
+    val error: String = ""
 )
 
 const val DEFAULT_LAT = 39.9042

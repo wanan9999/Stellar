@@ -396,7 +396,9 @@
     <string name="location_save_favorite">Save place</string>
     <string name="location_favorite_name">Name</string>
     <string name="location_delete_favorite">Remove saved place?</string>
-    <string name="location_disclaimer">Maps, weather, and ride-hailing will all see this location.</string>
+    <string name="location_disclaimer">This is the system mock location. Ride-hailing and delivery apps may still use Wi-Fi or cell towers.</string>
+    <string name="location_reduce_jump">Reduce jumping</string>
+    <string name="location_reduce_jump_hint">Turns off Wi-Fi and Bluetooth scanning so the system leans on mocked GPS. Some apps may still ignore it.</string>
     <string name="location_status_active">Mocking · %1$s</string>
     <string name="location_custom">Custom</string>
     <string name="location_permission_needed">Location permission is required.</string>

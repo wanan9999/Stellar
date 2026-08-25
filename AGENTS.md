@@ -76,7 +76,7 @@ shizuku/     → Shizuku 兼容层
 - JNI 层：`src/main/jni/` 包含 starter（服务启动器）、chid（降权工具）、adb_pairing、rish（Shizuku 兼容 PTY，不是独立命令行应用）
 - 多语言：英语（默认）、简体中文（`values-zh-rCN`）
 - 运营商覆盖：管理器进程 Instrumentation + `UiAutomationConnection` + `startDelegate`；永远 `persistent=false`；状态只认官方配置键；跨重启靠 `CarrierStore` 再应用
-- 定位模拟：AppOps `android:mock_location` 指定本应用 + 前台服务同时注入 `gps` / `network` / `fused`；UI 在 `ui/features/tools` 目录下扩展
+- 定位模拟：shell `cmd location` 写入 gps/network/fused；有 GMS 时再写 `setMockMode`；失败则退出模拟；可选关闭 Wi-Fi/蓝牙扫描；UI 在 `ui/features/tools` 目录下扩展
 
 ### Server 核心组件
 

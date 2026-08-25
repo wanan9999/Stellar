@@ -26,7 +26,7 @@ object LocationController {
         grant(Manifest.permission.ACCESS_COARSE_LOCATION)
         if (BuildUtils.atLeast33) grant(Manifest.permission.POST_NOTIFICATIONS)
         MockLocationOps.ensureSelected()
-        _snapshot.update { it.copy(mockAppReady = true) }
+        _snapshot.update { it.copy(mockAppReady = true, reduceJump = store.reduceJump()) }
         return hasLocationPermission()
     }
 
@@ -46,15 +46,36 @@ object LocationController {
 
     fun start(lat: Double, lng: Double, label: String, zoom: Double = _snapshot.value.zoom) {
         if (!prepare()) error("permission")
-        persist(_snapshot.value.copy(active = true, lat = lat, lng = lng, label = label, zoom = zoom))
+        persist(
+            _snapshot.value.copy(
+                active = false,
+                lat = lat,
+                lng = lng,
+                label = label,
+                zoom = zoom,
+                error = ""
+            )
+        )
+        store.save(StoredLocation(lat, lng, label, zoom, running = true))
         ContextCompat.startForegroundService(
             application,
             Intent(application, LocationMockService::class.java)
         )
     }
 
+    fun markStarted() {
+        persist(_snapshot.value.copy(active = true, error = ""))
+        if (_snapshot.value.reduceJump) LocationScanGuard.apply()
+    }
+
+    fun fail(message: String) {
+        persist(_snapshot.value.copy(active = false, error = message))
+        LocationScanGuard.restore()
+    }
+
     fun stop() {
         markStopped()
+        LocationScanGuard.restore()
         ContextCompat.startForegroundService(
             application,
             Intent(application, LocationMockService::class.java).setAction(LocationMockService.ACTION_STOP)
@@ -65,6 +86,17 @@ object LocationController {
         persist(_snapshot.value.copy(active = false))
     }
 
+    fun setReduceJump(enabled: Boolean) {
+        store.setReduceJump(enabled)
+        persist(_snapshot.value.copy(reduceJump = enabled))
+        if (!Stellar.pingBinder()) return
+        if (enabled && _snapshot.value.active) LocationScanGuard.apply()
+        if (!enabled) LocationScanGuard.restore()
+    }
+
+    fun shouldRun(): Boolean =
+        _snapshot.value.active || store.load()?.running == true
+
     fun restoreIfRunning() {
         val stored = store.load() ?: return
         if (!stored.running) return
@@ -74,7 +106,8 @@ object LocationController {
                 lat = stored.lat,
                 lng = stored.lng,
                 label = stored.label,
-                zoom = stored.zoom
+                zoom = stored.zoom,
+                error = ""
             )
         )
     }
@@ -94,16 +127,17 @@ object LocationController {
     private fun persist(next: LocationSnapshot) {
         _snapshot.value = next
         store.save(StoredLocation(next.lat, next.lng, next.label, next.zoom, next.active))
+        store.setReduceJump(next.reduceJump)
     }
 
     private fun initialSnapshot(): LocationSnapshot {
         val stored = store.load()
         return LocationSnapshot(
-            active = false,
             lat = stored?.lat ?: DEFAULT_LAT,
             lng = stored?.lng ?: DEFAULT_LNG,
             label = stored?.label.orEmpty(),
-            zoom = stored?.zoom ?: DEFAULT_ZOOM
+            zoom = stored?.zoom ?: DEFAULT_ZOOM,
+            reduceJump = store.reduceJump()
         )
     }
 

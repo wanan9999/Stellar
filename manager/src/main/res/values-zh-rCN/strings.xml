@@ -392,7 +392,9 @@
     <string name="location_save_favorite">收藏地点</string>
     <string name="location_favorite_name">名称</string>
     <string name="location_delete_favorite">删除这个收藏？</string>
-    <string name="location_disclaimer">系统里的地图、天气、打车都会看到这个位置。</string>
+    <string name="location_disclaimer">这是系统模拟位置。打车、外卖仍可能用 Wi-Fi 或基站认你的真位置。</string>
+    <string name="location_reduce_jump">减少位置跳动</string>
+    <string name="location_reduce_jump_hint">关闭 Wi-Fi / 蓝牙扫描定位，让系统更依赖模拟 GPS。部分应用仍可能忽略。</string>
     <string name="location_status_active">正在模拟 · %1$s</string>
     <string name="location_custom">自定义</string>
     <string name="location_permission_needed">需要定位权限</string>

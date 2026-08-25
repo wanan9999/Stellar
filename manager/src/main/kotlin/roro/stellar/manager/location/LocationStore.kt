@@ -67,4 +67,43 @@ internal class LocationStore(context: Context) {
         current["favorites"] = gson.toJson(places)
         file.outputStream().use { current.store(it, "stellar-location") }
     }
+
+    fun reduceJump(): Boolean = props()["reduceJump"] == "true"
+
+    fun setReduceJump(enabled: Boolean) {
+        val current = props()
+        current["reduceJump"] = enabled.toString()
+        writeAll(current)
+    }
+
+    fun saveScanBackup(wifi: String, ble: String) {
+        val current = props()
+        current["wifiScanWas"] = wifi
+        current["bleScanWas"] = ble
+        writeAll(current)
+    }
+
+    fun scanBackup(): Pair<String, String>? {
+        val current = props()
+        val wifi = current.getProperty("wifiScanWas") ?: return null
+        val ble = current.getProperty("bleScanWas") ?: return null
+        return wifi to ble
+    }
+
+    fun clearScanBackup() {
+        val current = props()
+        current.remove("wifiScanWas")
+        current.remove("bleScanWas")
+        writeAll(current)
+    }
+
+    private fun props(): Properties {
+        if (!file.exists()) return Properties()
+        return Properties().also { file.inputStream().use { stream -> it.load(stream) } }
+    }
+
+    private fun writeAll(props: Properties) {
+        file.parentFile?.mkdirs()
+        file.outputStream().use { props.store(it, "stellar-location") }
+    }
 }

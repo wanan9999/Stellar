@@ -33,17 +33,27 @@ class LocationMockService : Service() {
         if (intent?.action == ACTION_STOP) {
             startAsForeground(LocationController.snapshot.value.label)
             LocationController.markStopped()
+            LocationScanGuard.restore()
             stopInternal()
             return START_NOT_STICKY
         }
         if (intent == null) LocationController.restoreIfRunning()
         val snap = LocationController.snapshot.value
-        if (!snap.active) {
+        if (!LocationController.shouldRun()) {
             startAsForeground(snap.label)
             stopInternal()
             return START_NOT_STICKY
         }
         startAsForeground(snap.label)
+        try {
+            LocationInjector.attach(this)
+            LocationInjector.push(this, snap.lat, snap.lng)
+            LocationController.markStarted()
+        } catch (e: Exception) {
+            LocationController.fail(e.message ?: "inject")
+            stopInternal()
+            return START_NOT_STICKY
+        }
         startLoop()
         return START_STICKY
     }
@@ -58,11 +68,20 @@ class LocationMockService : Service() {
     private fun startLoop() {
         if (loop?.isActive == true) return
         loop = scope.launch {
-            LocationInjector.attach(this@LocationMockService)
+            var failures = 0
             while (isActive && LocationController.snapshot.value.active) {
                 val current = LocationController.snapshot.value
-                LocationInjector.push(this@LocationMockService, current.lat, current.lng)
-                delay(1000)
+                val ok = runCatching {
+                    LocationInjector.push(this@LocationMockService, current.lat, current.lng)
+                }.isSuccess
+                if (ok) {
+                    failures = 0
+                } else if (++failures >= 3) {
+                    LocationController.fail("inject")
+                    stopInternal()
+                    return@launch
+                }
+                delay(200)
             }
         }
     }

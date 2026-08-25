@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import roro.stellar.Stellar
 import roro.stellar.manager.carrier.CarrierReapply
+import roro.stellar.manager.location.LocationScanGuard
 import roro.stellar.manager.compat.BuildUtils.atLeast30
 import roro.stellar.manager.db.AppDatabase
 import roro.stellar.manager.startup.notification.BootStartNotifications
@@ -49,6 +50,7 @@ class StellarApplication : Application() {
         application = this
         init(this)
         BootStartNotifications.createChannel(this)
+        LocationScanGuard.restore()
         Stellar.addServiceStartedListener(Stellar.OnServiceStartedListener {
             executeFollowCommands()
             CarrierReapply.onServiceReady()

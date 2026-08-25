@@ -30,8 +30,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -204,6 +204,25 @@ fun LocationScreen(
                         else -> stringResource(R.string.location_disclaimer)
                     }
                     Text(status, style = MaterialTheme.typography.bodySmall)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            stringResource(R.string.location_reduce_jump),
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Switch(
+                            checked = state.reduceJump,
+                            onCheckedChange = viewModel::setReduceJump
+                        )
+                    }
+                    Text(
+                        stringResource(R.string.location_reduce_jump_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     Text(
                         String.format(Locale.US, "%.5f, %.5f", state.lat, state.lng),
                         style = MaterialTheme.typography.bodySmall,
