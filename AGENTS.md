@@ -63,18 +63,19 @@ shizuku/     → Shizuku 兼容层
 ### Manager 应用架构
 
 - UI：Jetpack Compose + Material Design 3，导航在 `ui/navigation/`
-- 底部导航页面（4个）：Home（服务状态）、Apps（授权管理）、Terminal（终端）、Settings（设置）
+- 底部导航页面（5个）：Home（服务状态）、Apps（授权管理）、Carrier（SIM 覆盖）、Terminal（终端）、Settings（设置）
 - 二级页面：`ui/features/manager/` 下包含 Logs（服务日志）、Starter（启动器）、ManagerActivity
 - ADB 无线配对：`adb/` 包实现完整的 ADB 协议栈（配对、mDNS 发现、连接）
-- 数据层：`db/`（Room 数据库）、`model/`、`domain/`
+- 数据层：`db/`（Room 数据库）、`model/ServiceStatus`、`domain/apps/AppsViewModel`
 - 授权管理：`authorization/`（RequestPermissionActivity、AuthorizationManager）
 - 开机自启：广播/回调入口为 `receiver/BootCompleteReceiver`、`receiver/StellarReceiver`、`receiver/StellarReceiverStarter`；ADB 自启动核心在 `startup/worker/AdbStartWorker`；通知交互在 `startup/notification/BootStartNotifications`
 - 开机启动模式：`StellarSettings.BootMode` 四选一（NONE / BROADCAST / ACCESSIBILITY / SCRIPT）
 - 当前广播自启动仅监听 `BOOT_COMPLETED`，不再依赖 `LOCKED_BOOT_COMPLETED`
 - 后台拉起路径依赖 `StellarSettings.LaunchMethod`，会按上次成功启动方式在 Root / ADB 之间选择
 - `LaunchMethod.UNKNOWN` 当前保留兼容回退，优先尝试 Root，失败后再尝试 ADB
-- JNI 层：`src/main/jni/` 包含 starter（服务启动器）、chid（降权工具）、adb_pairing、rish 等 native 组件
-- 多语言：英语（默认）、简体中文
+- JNI 层：`src/main/jni/` 包含 starter（服务启动器）、chid（降权工具）、adb_pairing、rish（Shizuku 兼容 PTY，不是独立命令行应用）
+- 多语言：英语（默认）、简体中文（`values-zh-rCN`）
+- 运营商覆盖：管理器进程 Instrumentation + `UiAutomationConnection` + `startDelegate`；永远 `persistent=false`；状态只认官方配置键；跨重启靠 `CarrierStore` 再应用
 
 ### Server 核心组件
 
@@ -105,28 +106,29 @@ shizuku/     → Shizuku 兼容层
 
 ## 技术栈
 
-- compileSdk 36, minSdk 24, targetSdk 36, JVM 21
-- AGP 8.10.1, Kotlin 2.2.0, Compose Compiler 2.1.21, KSP 2.2.0-2.0.2
+- 主工程：compileSdk 37, minSdk 24, targetSdk 37, JVM 21
+- AGP 9.3.0, Kotlin 2.2.0, KSP 2.3.11
 - Compose BOM 2026.01.01, Navigation Compose 2.9.7
 - Room 2.7.1（manager 本地数据库）
-- NDK 29 + CMake 3.22.1+（JNI 组件）
-- 版本目录：各模块独立 `*.versions.toml`（manager/server/api/demo），根目录 `gradle/libs.versions.toml` 管理 hidden-api/refine
+- NDK 28.2.13676358 + CMake 3.22.1+（JNI 组件）
+- 版本目录：各模块独立 `*.versions.toml`（manager/server/api/demo），根目录 `gradle/libs.versions.toml` 管理 hidden-api/refine 4.4.0
+- JitPack / `api/settings.gradle` 仍是独立子工程（AGP 8.10.0），不要和主工程 AGP 9 DSL 混用
 
 ## 版本号规则
 
-`versionCode`: XYYZZZ（如 100129 = 1.0.129）
-`versionName`: X.Y.Z[-suffix]（suffix: dev/alpha/beta/rc）
-定义在根 `build.gradle` 的 `ext` 块中。
+根 `build.gradle` 默认 `versionCode=101000`、`versionName=1.1`，可用 `-PversionCode` / `-PversionName` 覆盖。
+
+正式发布（`.github/workflows/release.yml`）由标签 `vX.Y.Z` 计算：
+- `versionName` = `X.Y.Z`
+- `versionCode` = `(X * 10000 + Y * 100 + Z) * 10 + 9`
 
 ## CI/CD
 
-- `.github/workflows/manager-ci.yml`：Manager 构建 CI
-- `.github/workflows/publish.yml`：发布流程
-- `.github/workflows/sync-release-gitee.yml`：同步 Release 到 Gitee
+- `.github/workflows/release.yml`：手动触发正式版构建与 GitHub Release
 
 ## 注意事项
 
 - `local.properties` 中设置 `api.useLocal=true` + `api.dir=路径` 可切换到本地 API 源码
 - JitPack 环境下（`JITPACK=true`）不包含 manager 和 server 模块
 - Shizuku 兼容层自动拒绝来自 Shizuku Manager 的请求
-- 更新检查使用 GitHub API（国内用户走 Gitee 渠道）
+- 设置页只提供 GitHub 仓库链接，没有应用内更新检查

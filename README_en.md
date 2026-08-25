@@ -59,7 +59,7 @@ Stellar's interface has been completely overhauled for a more modern, intuitive 
 ## Key Differences from Shizuku
 
 ### Removed Features
-- **rish** — the built-in root shell tool from Shizuku has been removed
+- **Standalone rish CLI** — the manager no longer ships Shizuku's standalone root shell; `librish.so` remains for the Shizuku compatibility layer and PTY
 - **Sui** — API support for Zygisk-Sui has been dropped
 
 ### New Features
@@ -68,7 +68,6 @@ Stellar's interface has been completely overhauled for a more modern, intuitive 
 - **Enhanced permission callbacks** — one-time grant awareness
 - **Privilege downgrade** — after starting via Root, Stellar can drop to the Shell user for improved security
 - **MediaTek support** — fixes a critical bug in upstream v13.6.0 that prevented Shizuku from running on MediaTek devices
-- **In-app updates** — fetch update details from GitHub and update Stellar without leaving the app
 - **TCP capability** — start or pre-warm Stellar while connected to Wi-Fi, enabling Wi-Fi-free startup on the next boot before Wi-Fi connects
 
 ### Re-enabled Features

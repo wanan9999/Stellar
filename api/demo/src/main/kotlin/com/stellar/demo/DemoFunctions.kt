@@ -339,12 +339,10 @@ object DemoFunctions {
 
         logger.log("--- 启动 UserService ---")
         logger.log("服务类: ${DemoUserService::class.java.name}")
-        // [临时删除] logger.log("加载模式: ${if (BuildConfig.STELLAR_USE_STANDALONE_DEX) "独立 dex" else "APK 直接加载"}")
 
         val args = UserServiceArgs.Builder(DemoUserService::class.java)
             .processNameSuffix("demo_service")
             .versionCode(1)
-            // [临时删除] .useStandaloneDex(BuildConfig.STELLAR_USE_STANDALONE_DEX)
             .build()
 
         logger.log("参数已构建, 调用 bindUserService...")
@@ -376,7 +374,6 @@ object DemoFunctions {
         val args = UserServiceArgs.Builder(DemoUserService::class.java)
             .processNameSuffix("demo_service")
             .versionCode(1)
-            // [临时删除] .useStandaloneDex(BuildConfig.STELLAR_USE_STANDALONE_DEX)
             .build()
 
         StellarUserService.unbindUserService(args)

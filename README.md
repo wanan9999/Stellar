@@ -46,7 +46,7 @@ Stellar 对用户界面进行了全面重构，带来更现代、更直观的使
 ## 与 Shizuku 的主要区别
 
 ### 移除的功能
-- **rish** - 移除 Shizuku 内置的 root shell 工具
+- **独立 rish 命令行** - 管理器不再提供 Shizuku 那种独立 root shell 入口；`librish.so` 仍用于 Shizuku 兼容层与 PTY
 - **Sui** - 移除了 API 对 Zygisk-Sui 的支持
 
 ### 新增的功能
@@ -55,7 +55,6 @@ Stellar 对用户界面进行了全面重构，带来更现代、更直观的使
 - **权限回调增强** - 支持一次性授权感知
 - **降权激活** - Root 启动后可降权到 Shell 用户运行，提高安全性
 - **联发科支持**：修复了原版 v13.6.0 中一个导致 Shizuku 无法在联发科设备上运行的关键漏洞
-- **应用内更新**：可从 Github 获取更新详情并在应用内更新 Stellar
 - **TCP功能**：在连接 WiFi 时启动或预热 Stellar，下次无 WiFi 重启前可免 WiFi 启动
 
 ### 重新启用的功能

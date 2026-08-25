@@ -14,7 +14,7 @@ internal object CarrierConfigWriter {
     private const val SETTLE_MS = 150L
 
     fun writeOverride(context: Context, subId: Int, bundle: PersistableBundle?) {
-        overrideConfig(context, subId, bundle, persistent = false)
+        overrideConfig(context, subId, bundle)
         if (bundle == null) notifyChanged(context, subId)
     }
 
@@ -33,11 +33,11 @@ internal object CarrierConfigWriter {
         return false
     }
 
-    fun overrideConfig(context: Context, subId: Int, bundle: PersistableBundle?, persistent: Boolean) {
+    fun overrideConfig(context: Context, subId: Int, bundle: PersistableBundle?) {
         val cm = context.getSystemService(CarrierConfigManager::class.java)
             ?: error("CarrierConfigManager unavailable")
         try {
-            invokeOverride(cm, subId, bundle, persistent)
+            invokeOverride(cm, subId, bundle)
         } catch (e: InvocationTargetException) {
             throw e.targetException ?: e
         }
@@ -54,8 +54,7 @@ internal object CarrierConfigWriter {
     private fun invokeOverride(
         cm: CarrierConfigManager,
         subId: Int,
-        bundle: PersistableBundle?,
-        persistent: Boolean
+        bundle: PersistableBundle?
     ) {
         try {
             val method = CarrierConfigManager::class.java.getMethod(
@@ -64,7 +63,7 @@ internal object CarrierConfigWriter {
                 PersistableBundle::class.java,
                 Boolean::class.javaPrimitiveType
             )
-            method.invoke(cm, subId, bundle, persistent)
+            method.invoke(cm, subId, bundle, false)
         } catch (e: NoSuchMethodException) {
             val method = CarrierConfigManager::class.java.getMethod(
                 "overrideConfig",

@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatDelegate
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +15,7 @@ import roro.stellar.manager.carrier.CarrierReapply
 import roro.stellar.manager.compat.BuildUtils.atLeast30
 import roro.stellar.manager.db.AppDatabase
 import roro.stellar.manager.startup.notification.BootStartNotifications
+import roro.stellar.manager.ui.theme.ThemePreferences
 import roro.stellar.manager.util.Logger.Companion.LOGGER
 
 lateinit var application: StellarApplication
@@ -41,7 +41,7 @@ class StellarApplication : Application() {
 
     private fun init(context: Context) {
         StellarSettings.initialize(context)
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        ThemePreferences.applyNightMode()
     }
 
     override fun onCreate() {

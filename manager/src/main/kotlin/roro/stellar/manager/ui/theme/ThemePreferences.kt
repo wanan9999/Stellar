@@ -1,5 +1,6 @@
 package roro.stellar.manager.ui.theme
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.edit
@@ -20,7 +21,9 @@ enum class ThemeMode(val value: String) {
 enum class StartPage(val value: String) {
     HOME("home"),
     APPS("apps"),
-    TERMINAL("terminal");
+    CARRIER("carrier"),
+    TERMINAL("terminal"),
+    SETTINGS("settings");
 
     companion object {
         fun fromValue(value: String): StartPage = entries.find { it.value == value } ?: HOME
@@ -57,6 +60,17 @@ object ThemePreferences {
         StellarSettings.getPreferences().edit {
             putString(THEME_MODE, mode.value)
         }
+        applyNightMode(mode)
+    }
+
+    fun applyNightMode(mode: ThemeMode = themeMode.value) {
+        AppCompatDelegate.setDefaultNightMode(
+            when (mode) {
+                ThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+                ThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+                ThemeMode.AUTO -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            }
+        )
     }
 
     fun setStartPage(page: StartPage) {
@@ -75,6 +89,8 @@ object ThemePreferences {
     fun getStartPageDisplayNameRes(page: StartPage): Int = when (page) {
         StartPage.HOME -> R.string.nav_home
         StartPage.APPS -> R.string.nav_apps
+        StartPage.CARRIER -> R.string.nav_carrier
         StartPage.TERMINAL -> R.string.nav_terminal
+        StartPage.SETTINGS -> R.string.nav_settings
     }
 }

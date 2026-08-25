@@ -22,7 +22,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
@@ -51,8 +50,6 @@ import roro.stellar.manager.ui.features.home.HomeViewModel
 import roro.stellar.manager.ui.features.manager.ManagerActivity
 import roro.stellar.manager.ui.features.settings.SettingsScreen
 import roro.stellar.manager.ui.features.terminal.TerminalScreen
-import roro.stellar.manager.ui.navigation.components.LocalNavigationState
-import roro.stellar.manager.ui.navigation.components.NavigationState
 import roro.stellar.manager.ui.navigation.components.StandardBottomNavigation
 import roro.stellar.manager.ui.navigation.components.StandardNavigationRail
 import roro.stellar.manager.ui.navigation.routes.MainScreen
@@ -218,16 +215,15 @@ private fun MainScreenContent(
     val navController = rememberNavController()
 
     val startPage = remember { ThemePreferences.startPage.value }
-    val initialIndex = when (startPage) {
-        StartPage.HOME -> 0
-        StartPage.APPS -> 1
-        StartPage.TERMINAL -> 3
+    val startScreen = when (startPage) {
+        StartPage.HOME -> MainScreen.Home
+        StartPage.APPS -> MainScreen.Apps
+        StartPage.CARRIER -> MainScreen.Carrier
+        StartPage.TERMINAL -> MainScreen.Terminal
+        StartPage.SETTINGS -> MainScreen.Settings
     }
-    val startRoute = when (startPage) {
-        StartPage.HOME -> MainScreen.Home.route
-        StartPage.APPS -> MainScreen.Apps.route
-        StartPage.TERMINAL -> MainScreen.Terminal.route
-    }
+    val initialIndex = startScreen.ordinal
+    val startRoute = startScreen.route
 
     var selectedIndex by remember { androidx.compose.runtime.mutableIntStateOf(initialIndex) }
 
@@ -263,11 +259,6 @@ private fun MainScreenContent(
             }
         }
     }
-
-    val navigationState = NavigationState(
-        selectedIndex = selectedIndex,
-        onItemClick = onNavigationItemClick
-    )
 
     val navHostContent: @Composable (Modifier) -> Unit = { modifier ->
         NavHost(
@@ -337,36 +328,34 @@ private fun MainScreenContent(
         }
     }
 
-    CompositionLocalProvider(LocalNavigationState provides navigationState) {
-        AdaptiveLayoutProvider {
-            if (isLandscape) {
-                Row(modifier = Modifier
+    AdaptiveLayoutProvider {
+        if (isLandscape) {
+            Row(modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+            ) {
+                StandardNavigationRail(
+                    selectedIndex = selectedIndex,
+                    onItemClick = onNavigationItemClick
+                )
+                navHostContent(Modifier
+                    .weight(1f)
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.surface)
+                )
+            }
+        } else {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Scaffold(
+                    bottomBar = {
+                        StandardBottomNavigation(
+                            selectedIndex = selectedIndex,
+                            onItemClick = onNavigationItemClick
+                        )
+                    },
+                    contentWindowInsets = WindowInsets(0)
                 ) {
-                    StandardNavigationRail(
-                        selectedIndex = selectedIndex,
-                        onItemClick = onNavigationItemClick
-                    )
-                    navHostContent(Modifier
-                        .weight(1f)
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surface)
-                    )
-                }
-            } else {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Scaffold(
-                        bottomBar = {
-                            StandardBottomNavigation(
-                                selectedIndex = selectedIndex,
-                                onItemClick = onNavigationItemClick
-                            )
-                        },
-                        contentWindowInsets = WindowInsets(0)
-                    ) {
-                        navHostContent(Modifier.fillMaxSize().padding(it))
-                    }
+                    navHostContent(Modifier.fillMaxSize().padding(it))
                 }
             }
         }

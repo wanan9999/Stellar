@@ -402,66 +402,6 @@ val args = UserServiceArgs.Builder(MyUserService::class.java)
 | `versionCode` | Long | `0` | Service version number |
 | `tag` | String? | `null` | Optional tag |
 | `serviceMode` | ServiceMode | `ONE_TIME` | Service run mode |
-| ~~`useStandaloneDex`~~ | ~~Boolean~~ | ~~`false`~~ | ~~Use standalone DEX~~ (temporarily removed) |
-
-#### Standalone DEX Mode Configuration (temporarily removed)
-
-> **Note:** The standalone DEX mode feature has been temporarily removed. The following documentation is for reference only.
-
-Standalone DEX mode allows compiling user service classes into a separate DEX file, avoiding loading the entire APK.
-
-~~**Step 1: Reference the build script**~~
-
-~~Reference the build script provided by Stellar in your app's `build.gradle`:~~
-
-```gradle
-plugins {
-    id('com.android.application')
-    // ...
-}
-
-// Temporarily removed
-// apply from: project(':userservice').file('userservice-standalone.gradle')
-```
-
-~~**Step 2: Configure stellarUserService**~~
-
-```gradle
-// Temporarily removed
-// stellarUserService {
-//     enabled = true                                    // enable standalone DEX mode
-//     serviceClass = 'com.example.MyUserService'        // must specify the full class name of the service class
-//     extraClasses = ['com.example.MyHelper']           // optional: additional classes to include
-// }
-```
-
-| Config | Type | Default | Description |
-|--------|------|---------|-------------|
-| `enabled` | Boolean | `false` | Enable standalone DEX mode |
-| `serviceClass` | String | `null` | Full class name of the service class (required when enabled) |
-| `extraClasses` | List | `[]` | Additional classes to include |
-
-~~**Step 3: Use BuildConfig in code**~~
-
-~~Once enabled, the build script automatically generates the `BuildConfig.STELLAR_USE_STANDALONE_DEX` field:~~
-
-```kotlin
-// Temporarily removed
-// val args = UserServiceArgs.Builder(MyUserService::class.java)
-//     .useStandaloneDex(BuildConfig.STELLAR_USE_STANDALONE_DEX)
-//     .build()
-```
-
-~~**Without standalone DEX mode**~~
-
-~~If you don't need standalone DEX mode, set `enabled = false` or omit the configuration:~~
-
-```gradle
-// Temporarily removed
-// stellarUserService {
-//     enabled = false  // BuildConfig.STELLAR_USE_STANDALONE_DEX = false
-// }
-```
 
 **Naming convention:** the corresponding AIDL interface should be named `I<ServiceName>` (e.g., if the service class is `MyUserService`, the interface should be `IMyUserService`).
 
