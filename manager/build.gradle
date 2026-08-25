@@ -10,7 +10,6 @@ plugins {
     id('org.jetbrains.kotlin.plugin.compose')
     id('com.google.devtools.ksp')
     id('dev.rikka.tools.refine')
-    id('dev.rikka.tools.autoresconfig')
 }
 android {
     namespace 'roro.stellar.manager'
@@ -80,7 +79,11 @@ android {
         }
     }
 
-    packagingOptions {
+    androidResources {
+        generateLocaleConfig = true
+    }
+
+    packaging {
         resources {
             excludes += ['/META-INF/**']
         }
@@ -91,12 +94,6 @@ android {
 
 }
 
-autoResConfig {
-    generatedClassFullName = "roro.stellar.manager.StellarLocales"
-    generateRes = false
-    generatedArrayFirstItem = "SYSTEM"
-    generateLocaleConfig = true
-}
 interface InjectedBuildOps {
     @Inject ExecOperations getExecOperations()
     @Inject FileSystemOperations getFileSystemOperations()

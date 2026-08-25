@@ -1,7 +1,6 @@
 package roro.stellar.manager.ui.theme
 
 import android.app.Activity
-import android.graphics.Color
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -45,10 +44,6 @@ fun StellarTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            @Suppress("DEPRECATION")
-            window.statusBarColor = Color.TRANSPARENT
-            @Suppress("DEPRECATION")
-            window.navigationBarColor = Color.TRANSPARENT
             if (atLeast29) {
                 window.isNavigationBarContrastEnforced = false
             }
