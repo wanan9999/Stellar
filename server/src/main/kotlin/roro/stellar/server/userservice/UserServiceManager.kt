@@ -85,8 +85,9 @@ class UserServiceManager {
         if (existingRecord != null) {
             if (existingRecord.versionCode == versionCode && existingRecord.isConnected) {
                 LOGGER.i("复用已存在的服务: %s", key)
+                existingRecord.callback = callback
                 try {
-                    callback?.onServiceConnected(existingRecord.serviceBinder!!, existingRecord.verificationToken)
+                    callback?.onServiceConnected(existingRecord.serviceBinder!!, verificationToken)
                 } catch (e: Exception) {
                     LOGGER.w(e, "通知复用服务失败")
                 }

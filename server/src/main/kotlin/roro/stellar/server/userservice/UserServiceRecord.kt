@@ -16,7 +16,7 @@ class UserServiceRecord(
     val versionCode: Long,
     val serviceMode: Int,
     val verificationToken: String,
-    val callback: IUserServiceCallback?,
+    var callback: IUserServiceCallback?,
     private val onRemove: (UserServiceRecord) -> Unit
 ) {
     companion object {

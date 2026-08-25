@@ -142,20 +142,25 @@ class CarrierUserService : ICarrierOverrideService.Stub {
         if (direct.isSuccess) return direct.getOrThrow()
         val error = direct.exceptionOrNull()
         Log.w(TAG, "direct write failed", error)
-        if (error is SecurityException) {
-            val instrumented = runCatching { writeViaInstrumentation(subId, bundle, reset) }
+
+        val cmd = runCatching { writeViaCmd(subId, bundle, reset) }
+        if (cmd.isSuccess) return cmd.getOrThrow()
+        Log.w(TAG, "cmd-phone write failed", cmd.exceptionOrNull())
+
+        val flags = HiddenAm.flagsForNoRestartInstrumentation()
+        if (error is SecurityException && flags != null) {
+            val instrumented = runCatching { writeViaInstrumentation(subId, bundle, reset, flags) }
             if (instrumented.isSuccess) return instrumented.getOrThrow()
             Log.w(TAG, "instrumentation write failed", instrumented.exceptionOrNull())
         }
-        val cmd = runCatching { writeViaCmd(subId, bundle, reset) }
-        if (cmd.isSuccess) return cmd.getOrThrow()
         return failure(error?.message ?: cmd.exceptionOrNull()?.message ?: "写入失败")
     }
 
     private fun writeViaInstrumentation(
         subId: Int,
         bundle: android.os.PersistableBundle?,
-        reset: Boolean
+        reset: Boolean,
+        flags: Int
     ): Bundle {
         val am = HiddenAm.activityManager()
         val appUid = context.applicationInfo.uid
@@ -176,7 +181,7 @@ class CarrierUserService : ICarrierOverrideService.Stub {
             val started = HiddenAm.startInstrumentation(
                 am,
                 ComponentName(context.packageName, PrivilegedProcess::class.java.name),
-                HiddenAm.INSTR_FLAG_DISABLE_HIDDEN_API_CHECKS or HiddenAm.INSTR_FLAG_NO_RESTART,
+                flags,
                 args
             )
             if (!started) error("startInstrumentation returned false")
