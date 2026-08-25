@@ -13,18 +13,6 @@ internal data class StoredOverlay(
 
 internal class CarrierStore(context: Context) {
     private val file = File(context.filesDir, "carrier_overlay.properties")
-    private val tokenFile = File(context.filesDir, "carrier_apply.token")
-
-    fun writeToken(token: String) {
-        file.parentFile?.mkdirs()
-        tokenFile.writeText(token)
-    }
-
-    fun readToken(): String? = runCatching { tokenFile.readText() }.getOrNull()
-
-    fun clearToken() {
-        if (tokenFile.exists()) tokenFile.delete()
-    }
 
     fun load(): StoredOverlay? {
         if (!file.exists()) return null

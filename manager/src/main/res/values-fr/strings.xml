@@ -363,18 +363,20 @@
 
     <string name="logs_app_not_running">L\'application n\'était pas en cours d\'exécution pendant cette session de service, aucun journal disponible.</string>
 
-    <string name="carrier_service_ready">Le service Stellar est en cours d\'exécution. Les écritures CarrierConfig passent par le UserService intégré.</string>
-    <string name="carrier_service_missing">Le service Stellar n\'est pas en cours d\'exécution. Associez ADB ou démarrez avec Root d\'abord.</string>
-    <string name="carrier_section_sim">Cartes SIM</string>
-    <string name="carrier_section_country">ISO du pays</string>
-    <string name="carrier_section_name">Nom de l\'opérateur</string>
-    <string name="carrier_section_verify">Vérifier</string>
-    <string name="carrier_custom_iso">ISO personnalisé (2 lettres)</string>
-    <string name="carrier_auto_reapply">Réappliquer au démarrage de Stellar</string>
-    <string name="carrier_auto_reapply_hint">Nécessaire sur Android 16 lorsque seules les écritures non persistantes sont autorisées.</string>
+    <string name="carrier_service_missing">Démarrez d\'abord Stellar (ADB ou Root).</string>
+    <string name="carrier_section_sim">SIM</string>
+    <string name="carrier_section_country">Pays</string>
+    <string name="carrier_section_name">Opérateur</string>
+    <string name="carrier_country_other">Autre</string>
+    <string name="carrier_custom_iso">ISO (2 lettres)</string>
+    <string name="carrier_auto_reapply">Réappliquer au démarrage</string>
     <string name="carrier_apply">Appliquer</string>
-    <string name="carrier_reset">Réinitialiser</string>
-    <string name="carrier_persistent">Écriture persistante réussie</string>
-    <string name="carrier_non_persistent">Écriture non persistante. Elle sera restaurée au démarrage de Stellar.</string>
-    <string name="carrier_disclaimer">Cela n\'applique qu\'une superposition CarrierConfig (ISO du pays SIM / nom affiché). Cela ne réécrit pas la SIM, l\'IMSI ou le MCC/MNC, et ne modifie pas TikTok. Le client officiel TikTok a toujours besoin d\'un accès réseau fonctionnel.</string>
+    <string name="carrier_reset">Effacer la superposition</string>
+    <string name="carrier_non_persistent">Non persistante ; Stellar la réécrira au démarrage.</string>
+    <string name="carrier_disclaimer">Remplace uniquement le code pays et le nom affiché. La SIM n\'est pas modifiée.</string>
+    <string name="carrier_status_active">Actif : %1$s</string>
+    <string name="carrier_sim_overlay">Superposition %1$s</string>
+    <string name="carrier_sim_current">Actuel %1$s</string>
+    <string name="carrier_no_sim">Aucune SIM détectée</string>
+    <string name="carrier_select_sim">Sélectionnez une SIM</string>
 </resources>

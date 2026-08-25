@@ -3,6 +3,7 @@ package roro.stellar.manager.carrier
 import android.app.Instrumentation
 import android.os.Bundle
 import android.os.Parcel
+import android.os.Process
 import android.util.Log
 
 class PrivilegedProcess : Instrumentation() {
@@ -10,15 +11,14 @@ class PrivilegedProcess : Instrumentation() {
         super.onCreate(arguments)
         val args = arguments ?: Bundle()
         val callback = args.getBinder(EXTRA_CALLBACK)
-        val token = args.getString(EXTRA_TOKEN).orEmpty()
-        val expected = runCatching { CarrierStore(context).readToken() }.getOrNull().orEmpty()
-        if (token.isEmpty() || token != expected) {
-            reply(callback, false, "invalid apply token", false)
+        if (args.getInt(EXTRA_PID, -1) != Process.myPid()) {
+            reply(callback, false, "invalid apply pid", false)
             finish(0, Bundle())
             return
         }
+        val am = HiddenAm.activityManager()
         try {
-            val context = context
+            HiddenAm.startDelegate(am, context.applicationInfo.uid)
             val subId = args.getInt(EXTRA_SUB_ID)
             val reset = args.getBoolean(EXTRA_RESET)
             val persistent = if (reset) {
@@ -34,6 +34,8 @@ class PrivilegedProcess : Instrumentation() {
         } catch (e: Exception) {
             Log.e(TAG, "override failed", e)
             reply(callback, false, e.message ?: e.javaClass.simpleName, false)
+        } finally {
+            runCatching { HiddenAm.stopDelegate(am) }
         }
         finish(0, Bundle())
     }
@@ -57,7 +59,7 @@ class PrivilegedProcess : Instrumentation() {
     companion object {
         private const val TAG = "StellarCarrier"
         const val DESCRIPTOR = "roro.stellar.manager.carrier.ApplyCallback"
-        const val EXTRA_TOKEN = "token"
+        const val EXTRA_PID = "pid"
         const val EXTRA_SUB_ID = "subId"
         const val EXTRA_ISO = "iso"
         const val EXTRA_NAME = "name"

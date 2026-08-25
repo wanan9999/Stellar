@@ -363,18 +363,20 @@
 
     <string name="logs_app_not_running">La aplicación no se ejecutó durante esta sesión del servicio, no hay registros disponibles.</string>
 
-    <string name="carrier_service_ready">El servicio Stellar está en ejecución. Las escrituras de CarrierConfig pasan por el UserService integrado.</string>
-    <string name="carrier_service_missing">El servicio Stellar no está en ejecución. Empareja ADB o inicia con Root primero.</string>
-    <string name="carrier_section_sim">Tarjetas SIM</string>
-    <string name="carrier_section_country">ISO del país</string>
-    <string name="carrier_section_name">Nombre del operador</string>
-    <string name="carrier_section_verify">Verificar</string>
-    <string name="carrier_custom_iso">ISO personalizado (2 letras)</string>
-    <string name="carrier_auto_reapply">Volver a aplicar al iniciar Stellar</string>
-    <string name="carrier_auto_reapply_hint">Necesario en Android 16 cuando solo se permiten escrituras no persistentes.</string>
+    <string name="carrier_service_missing">Inicia Stellar primero (ADB o Root).</string>
+    <string name="carrier_section_sim">SIM</string>
+    <string name="carrier_section_country">País</string>
+    <string name="carrier_section_name">Operador</string>
+    <string name="carrier_country_other">Otro</string>
+    <string name="carrier_custom_iso">ISO (2 letras)</string>
+    <string name="carrier_auto_reapply">Reaplicar al iniciar</string>
     <string name="carrier_apply">Aplicar</string>
-    <string name="carrier_reset">Restablecer</string>
-    <string name="carrier_persistent">Escritura persistente correcta</string>
-    <string name="carrier_non_persistent">Escritura no persistente. Se restaurará al iniciar Stellar.</string>
-    <string name="carrier_disclaimer">Solo superpone CarrierConfig (ISO del país SIM / nombre mostrado). No reescribe la SIM, el IMSI ni el MCC/MNC, y no modifica TikTok. El cliente oficial de TikTok sigue necesitando una ruta de red funcional.</string>
+    <string name="carrier_reset">Quitar superposición</string>
+    <string name="carrier_non_persistent">No persistente; Stellar la volverá a escribir al iniciar.</string>
+    <string name="carrier_disclaimer">Solo cubre el código de país y el nombre. No modifica la SIM.</string>
+    <string name="carrier_status_active">Activo: %1$s</string>
+    <string name="carrier_sim_overlay">Superposición %1$s</string>
+    <string name="carrier_sim_current">Actual %1$s</string>
+    <string name="carrier_no_sim">No se detectó SIM</string>
+    <string name="carrier_select_sim">Selecciona una SIM</string>
 </resources>

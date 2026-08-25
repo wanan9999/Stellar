@@ -363,18 +363,20 @@
 
     <string name="logs_app_not_running">このサービスセッション中にアプリは実行されていなかったため、利用可能なログはありません。</string>
 
-    <string name="carrier_service_ready">Stellar サービスは実行中です。CarrierConfig の書き込みは内蔵 UserService 経由で行われます。</string>
-    <string name="carrier_service_missing">Stellar サービスが実行されていません。先に ADB ペアリングまたは Root で起動してください。</string>
-    <string name="carrier_section_sim">SIM カード</string>
-    <string name="carrier_section_country">国コード</string>
-    <string name="carrier_section_name">キャリア名</string>
-    <string name="carrier_section_verify">確認</string>
-    <string name="carrier_custom_iso">カスタム ISO（2 文字）</string>
-    <string name="carrier_auto_reapply">Stellar 起動時に再適用</string>
-    <string name="carrier_auto_reapply_hint">Android 16 で非永続書き込みしかできない場合に必要です。</string>
+    <string name="carrier_service_missing">先に Stellar を起動してください（ADB または Root）。</string>
+    <string name="carrier_section_sim">SIM</string>
+    <string name="carrier_section_country">国</string>
+    <string name="carrier_section_name">キャリア</string>
+    <string name="carrier_country_other">その他</string>
+    <string name="carrier_custom_iso">ISO（2 文字）</string>
+    <string name="carrier_auto_reapply">起動時に再適用</string>
     <string name="carrier_apply">適用</string>
-    <string name="carrier_reset">リセット</string>
-    <string name="carrier_persistent">永続書き込みに成功しました</string>
-    <string name="carrier_non_persistent">非永続書き込みです。Stellar 起動時に復元されます。</string>
-    <string name="carrier_disclaimer">CarrierConfig（SIM の国コード / 表示名）を上書きするだけです。SIM、IMSI、MCC/MNC は書き換えず、TikTok も改変しません。公式 TikTok には引き続き利用可能なネットワーク経路が必要です。</string>
+    <string name="carrier_reset">上書きを解除</string>
+    <string name="carrier_non_persistent">再起動後は保持されません。Stellar 起動時に再書き込みします。</string>
+    <string name="carrier_disclaimer">国コードと表示名のみ上書きします。SIM 自体は変更しません。</string>
+    <string name="carrier_status_active">適用中: %1$s</string>
+    <string name="carrier_sim_overlay">上書き %1$s</string>
+    <string name="carrier_sim_current">現在 %1$s</string>
+    <string name="carrier_no_sim">SIM がありません</string>
+    <string name="carrier_select_sim">SIM を選択してください</string>
 </resources>

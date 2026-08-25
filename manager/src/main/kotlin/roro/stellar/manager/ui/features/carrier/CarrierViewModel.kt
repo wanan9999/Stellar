@@ -10,18 +10,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import roro.stellar.Stellar
+import roro.stellar.manager.R
+import roro.stellar.manager.application
 import roro.stellar.manager.carrier.CarrierClient
+import roro.stellar.manager.carrier.CarrierInstrument
 import roro.stellar.manager.carrier.CarrierKeys
 import roro.stellar.manager.carrier.CarrierPresets
+
+internal const val CUSTOM_COUNTRY_CODE = "_"
 
 data class SimItem(
     val slot: Int,
     val subId: Int,
     val displayName: String,
-    val mccMnc: String,
     val simIso: String,
     val overrideIso: String,
-    val overrideName: String,
     val runtimeIso: String
 )
 
@@ -35,11 +38,8 @@ data class CarrierUiState(
     val customIso: String = "",
     val useCustomIso: Boolean = false,
     val autoReapply: Boolean = true,
-    val lastMessage: String = "",
-    val lastStrategy: String = "",
     val lastPersistent: Boolean? = null,
     val verifiedIso: String = "",
-    val verifiedOperator: String = "",
     val error: String = ""
 )
 
@@ -51,7 +51,9 @@ class CarrierViewModel : ViewModel() {
         viewModelScope.launch {
             _state.update { it.copy(loading = true, error = "", serviceRunning = Stellar.pingBinder()) }
             if (!Stellar.pingBinder()) {
-                _state.update { it.copy(loading = false, error = "请先在「启动」页完成 ADB / Root 激活") }
+                _state.update {
+                    it.copy(loading = false, error = application.getString(R.string.carrier_service_missing))
+                }
                 return@launch
             }
             runCatching {
@@ -72,8 +74,7 @@ class CarrierViewModel : ViewModel() {
                         selectedSubId = selected,
                         autoReapply = peek.getBoolean(CarrierKeys.AUTO_REAPPLY, true),
                         verifiedIso = peek.getString(CarrierKeys.VERIFIED_ISO).orEmpty(),
-                        verifiedOperator = peek.getString(CarrierKeys.VERIFIED_OPERATOR).orEmpty(),
-                        error = if (sims.isEmpty()) "没有检测到已插入的 SIM" else ""
+                        error = if (sims.isEmpty()) application.getString(R.string.carrier_no_sim) else ""
                     )
                 }
             }.onFailure { e ->
@@ -88,6 +89,10 @@ class CarrierViewModel : ViewModel() {
     }
 
     fun selectCountry(code: String) {
+        if (code == CUSTOM_COUNTRY_CODE) {
+            _state.update { it.copy(useCustomIso = true, selectedCarrier = "") }
+            return
+        }
         val firstCarrier = CarrierPresets.carriersFor(code).firstOrNull()?.name.orEmpty()
         _state.update {
             it.copy(
@@ -116,25 +121,34 @@ class CarrierViewModel : ViewModel() {
     fun apply() {
         val current = _state.value
         if (current.selectedSubId <= 0) {
-            _state.update { it.copy(error = "请选择 SIM 卡") }
+            _state.update { it.copy(error = application.getString(R.string.carrier_select_sim)) }
             return
         }
         val iso = if (current.useCustomIso) current.customIso else current.selectedCountry
         viewModelScope.launch {
-            _state.update { it.copy(loading = true, error = "", lastMessage = "") }
+            _state.update { it.copy(loading = true, error = "") }
             runCatching {
                 withContext(Dispatchers.IO) {
-                    CarrierClient.ensure().applyOverride(current.selectedSubId, iso, current.selectedCarrier)
+                    val service = CarrierClient.ensure()
+                    val remote = service.applyOverride(current.selectedSubId, iso, current.selectedCarrier)
+                    CarrierInstrument.completeIfNeeded(
+                        remote,
+                        current.selectedSubId,
+                        iso,
+                        current.selectedCarrier,
+                        reset = false
+                    )
                 }
             }.onSuccess { result ->
                 _state.update {
                     it.copy(
                         loading = false,
-                        lastMessage = result.getString(CarrierKeys.MESSAGE).orEmpty(),
-                        lastStrategy = result.getString(CarrierKeys.STRATEGY).orEmpty(),
-                        lastPersistent = if (result.containsKey(CarrierKeys.PERSISTENT)) result.getBoolean(CarrierKeys.PERSISTENT) else null,
+                        lastPersistent = if (result.containsKey(CarrierKeys.PERSISTENT)) {
+                            result.getBoolean(CarrierKeys.PERSISTENT)
+                        } else {
+                            null
+                        },
                         verifiedIso = result.getString(CarrierKeys.VERIFIED_ISO).orEmpty(),
-                        verifiedOperator = result.getString(CarrierKeys.VERIFIED_OPERATOR).orEmpty(),
                         error = if (result.getBoolean(CarrierKeys.OK)) "" else result.getString(CarrierKeys.MESSAGE).orEmpty()
                     )
                 }
@@ -151,13 +165,14 @@ class CarrierViewModel : ViewModel() {
         viewModelScope.launch {
             _state.update { it.copy(loading = true, error = "") }
             runCatching {
-                withContext(Dispatchers.IO) { CarrierClient.ensure().resetOverride(subId) }
+                withContext(Dispatchers.IO) {
+                    val remote = CarrierClient.ensure().resetOverride(subId)
+                    CarrierInstrument.completeIfNeeded(remote, subId, null, null, reset = true)
+                }
             }.onSuccess { result ->
                 _state.update {
                     it.copy(
                         loading = false,
-                        lastMessage = result.getString(CarrierKeys.MESSAGE).orEmpty(),
-                        lastStrategy = result.getString(CarrierKeys.STRATEGY).orEmpty(),
                         lastPersistent = null,
                         verifiedIso = result.getString(CarrierKeys.VERIFIED_ISO).orEmpty(),
                         error = if (result.getBoolean(CarrierKeys.OK)) "" else result.getString(CarrierKeys.MESSAGE).orEmpty()
@@ -177,7 +192,6 @@ class CarrierViewModel : ViewModel() {
                 _state.update {
                     it.copy(
                         verifiedIso = peek.getString(CarrierKeys.VERIFIED_ISO).orEmpty(),
-                        verifiedOperator = peek.getString(CarrierKeys.VERIFIED_OPERATOR).orEmpty(),
                         autoReapply = peek.getBoolean(CarrierKeys.AUTO_REAPPLY, it.autoReapply)
                     )
                 }
@@ -189,10 +203,8 @@ class CarrierViewModel : ViewModel() {
         slot = getInt(CarrierKeys.SLOT),
         subId = getInt(CarrierKeys.SUB_ID),
         displayName = getString(CarrierKeys.DISPLAY_NAME).orEmpty(),
-        mccMnc = getString(CarrierKeys.MCC_MNC).orEmpty(),
         simIso = getString(CarrierKeys.ISO).orEmpty(),
         overrideIso = getString(CarrierKeys.OVERRIDE_ISO).orEmpty(),
-        overrideName = getString(CarrierKeys.OVERRIDE_NAME).orEmpty(),
         runtimeIso = getString(CarrierKeys.CARRIER).orEmpty()
     )
 }

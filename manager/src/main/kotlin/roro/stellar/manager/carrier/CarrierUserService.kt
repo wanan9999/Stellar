@@ -1,16 +1,10 @@
 package roro.stellar.manager.carrier
 
 import android.annotation.SuppressLint
-import android.content.ComponentName
 import android.content.Context
-import android.os.Binder
 import android.os.Bundle
-import android.os.Parcel
 import android.telephony.SubscriptionManager
 import android.util.Log
-import java.util.UUID
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 class CarrierUserService : ICarrierOverrideService.Stub {
     private val context: Context
@@ -82,7 +76,7 @@ class CarrierUserService : ICarrierOverrideService.Stub {
             return failure("没有可写入的覆盖项")
         }
         val outcome = write(subId, bundle, reset = false)
-        if (outcome.getBoolean(CarrierKeys.OK)) {
+        if (outcome.getBoolean(CarrierKeys.OK) || outcome.getBoolean(CarrierKeys.NEED_INSTRUMENT)) {
             store.save(
                 StoredOverlay(
                     subId = subId,
@@ -91,6 +85,11 @@ class CarrierUserService : ICarrierOverrideService.Stub {
                     autoReapply = store.load()?.autoReapply ?: true
                 )
             )
+            outcome.putInt(CarrierKeys.SUB_ID, subId)
+            outcome.putString(CarrierKeys.ISO, iso)
+            outcome.putString(CarrierKeys.CARRIER, name)
+        }
+        if (outcome.getBoolean(CarrierKeys.OK)) {
             verifyInto(outcome, subId, iso)
         }
         return outcome
@@ -98,8 +97,11 @@ class CarrierUserService : ICarrierOverrideService.Stub {
 
     override fun resetOverride(subId: Int): Bundle {
         val outcome = write(subId, null, reset = true)
-        if (outcome.getBoolean(CarrierKeys.OK)) {
+        if (outcome.getBoolean(CarrierKeys.OK) || outcome.getBoolean(CarrierKeys.NEED_INSTRUMENT)) {
             store.clear()
+            outcome.putInt(CarrierKeys.SUB_ID, subId)
+        }
+        if (outcome.getBoolean(CarrierKeys.OK)) {
             verifyInto(outcome, subId, null)
         }
         return outcome
@@ -142,90 +144,14 @@ class CarrierUserService : ICarrierOverrideService.Stub {
         if (direct.isSuccess) return direct.getOrThrow()
         val error = direct.exceptionOrNull()
         Log.w(TAG, "direct write failed", error)
-
-        val cmd = runCatching { writeViaCmd(subId, bundle, reset) }
-        if (cmd.isSuccess) return cmd.getOrThrow()
-        Log.w(TAG, "cmd-phone write failed", cmd.exceptionOrNull())
-
-        val flags = HiddenAm.flagsForNoRestartInstrumentation()
-        if (error is SecurityException && flags != null) {
-            val instrumented = runCatching { writeViaInstrumentation(subId, bundle, reset, flags) }
-            if (instrumented.isSuccess) return instrumented.getOrThrow()
-            Log.w(TAG, "instrumentation write failed", instrumented.exceptionOrNull())
-        }
-        return failure(error?.message ?: cmd.exceptionOrNull()?.message ?: "写入失败")
-    }
-
-    private fun writeViaInstrumentation(
-        subId: Int,
-        bundle: android.os.PersistableBundle?,
-        reset: Boolean,
-        flags: Int
-    ): Bundle {
-        val am = HiddenAm.activityManager()
-        val appUid = context.applicationInfo.uid
-        val callback = ResultBinder()
-        val token = UUID.randomUUID().toString()
-        store.writeToken(token)
-        val args = Bundle().apply {
-            putString(PrivilegedProcess.EXTRA_TOKEN, token)
-            putInt(PrivilegedProcess.EXTRA_SUB_ID, subId)
-            putBoolean(PrivilegedProcess.EXTRA_RESET, reset)
-            putString(PrivilegedProcess.EXTRA_ISO, bundle?.getString(CarrierKeys.SIM_COUNTRY_ISO))
-            putString(PrivilegedProcess.EXTRA_NAME, bundle?.getString(CarrierKeys.CARRIER_NAME))
-            putBinder(PrivilegedProcess.EXTRA_CALLBACK, callback)
-        }
-
-        HiddenAm.startDelegate(am, appUid)
-        try {
-            val started = HiddenAm.startInstrumentation(
-                am,
-                ComponentName(context.packageName, PrivilegedProcess::class.java.name),
-                flags,
-                args
-            )
-            if (!started) error("startInstrumentation returned false")
-            if (!callback.latch.await(20, TimeUnit.SECONDS)) {
-                error("Instrumentation 超时")
+        if (error is SecurityException) {
+            return Bundle().apply {
+                putBoolean(CarrierKeys.OK, false)
+                putBoolean(CarrierKeys.NEED_INSTRUMENT, true)
+                putString(CarrierKeys.MESSAGE, error.message)
             }
-            if (!callback.ok) error(callback.message.ifEmpty { "Instrumentation 失败" })
-            return success("instrumentation", callback.persistent)
-        } finally {
-            store.clearToken()
-            runCatching { HiddenAm.stopDelegate(am) }
         }
-    }
-
-    private fun writeViaCmd(
-        subId: Int,
-        bundle: android.os.PersistableBundle?,
-        reset: Boolean
-    ): Bundle {
-        val command = if (reset || bundle == null) {
-            arrayOf("cmd", "phone", "cc", "clear-values", "-s", subId.toString())
-        } else {
-            val args = mutableListOf("cmd", "phone", "cc", "set-values", "-s", subId.toString())
-            bundle.getString(CarrierKeys.SIM_COUNTRY_ISO)?.let {
-                args += listOf("sim_country_iso_override_string", it)
-            }
-            if (bundle.getBoolean(CarrierKeys.CARRIER_NAME_OVERRIDE, false)) {
-                args += listOf(
-                    "carrier_name_override_bool",
-                    "true",
-                    "carrier_name_string",
-                    bundle.getString(CarrierKeys.CARRIER_NAME).orEmpty()
-                )
-            }
-            args.toTypedArray()
-        }
-        val process = Runtime.getRuntime().exec(command)
-        val stdout = process.inputStream.bufferedReader().readText()
-        val stderr = process.errorStream.bufferedReader().readText()
-        val code = process.waitFor()
-        if (code != 0) {
-            error("cmd phone 失败 ($code): ${(stdout + stderr).trim()}")
-        }
-        return success("cmd-phone", true)
+        return failure(error?.message ?: "写入失败")
     }
 
     private fun verifyInto(bundle: Bundle, subId: Int, expectedIso: String?) {
@@ -254,24 +180,5 @@ class CarrierUserService : ICarrierOverrideService.Stub {
     private fun failure(message: String) = Bundle().apply {
         putBoolean(CarrierKeys.OK, false)
         putString(CarrierKeys.MESSAGE, message)
-    }
-
-    private class ResultBinder : Binder() {
-        val latch = CountDownLatch(1)
-        @Volatile var ok = false
-        @Volatile var message = ""
-        @Volatile var persistent = false
-
-        override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
-            if (code == 1) {
-                data.enforceInterface(PrivilegedProcess.DESCRIPTOR)
-                ok = data.readInt() == 1
-                message = data.readString().orEmpty()
-                persistent = data.readInt() == 1
-                latch.countDown()
-                return true
-            }
-            return super.onTransact(code, data, reply, flags)
-        }
     }
 }

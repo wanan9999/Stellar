@@ -15,6 +15,7 @@ internal object CarrierKeys {
     const val CARRIER = "carrierName"
 
     const val OK = "ok"
+    const val NEED_INSTRUMENT = "needInstrument"
     const val MESSAGE = "message"
     const val STRATEGY = "strategy"
     const val PERSISTENT = "persistent"

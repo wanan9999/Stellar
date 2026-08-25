@@ -363,18 +363,20 @@
 
     <string name="logs_app_not_running">لم يكن التطبيق قيد التشغيل خلال جلسة الخدمة هذه، لا توجد سجلات متاحة.</string>
 
-    <string name="carrier_service_ready">خدمة Stellar قيد التشغيل. تُكتب CarrierConfig عبر UserService المدمج.</string>
-    <string name="carrier_service_missing">خدمة Stellar غير قيد التشغيل. أتمم إقران ADB أو التشغيل بصلاحيات Root أولاً.</string>
-    <string name="carrier_section_sim">بطاقات SIM</string>
-    <string name="carrier_section_country">رمز الدولة</string>
-    <string name="carrier_section_name">اسم المشغّل</string>
-    <string name="carrier_section_verify">تحقق</string>
-    <string name="carrier_custom_iso">ISO مخصص (حرفان)</string>
-    <string name="carrier_auto_reapply">إعادة التطبيق عند تشغيل Stellar</string>
-    <string name="carrier_auto_reapply_hint">مطلوب على Android 16 عندما يُسمح بالكتابة غير الدائمة فقط.</string>
+    <string name="carrier_service_missing">شغّل Stellar أولاً (ADB أو Root).</string>
+    <string name="carrier_section_sim">SIM</string>
+    <string name="carrier_section_country">الدولة</string>
+    <string name="carrier_section_name">المشغّل</string>
+    <string name="carrier_country_other">أخرى</string>
+    <string name="carrier_custom_iso">ISO (حرفان)</string>
+    <string name="carrier_auto_reapply">إعادة التطبيق عند التشغيل</string>
     <string name="carrier_apply">تطبيق</string>
-    <string name="carrier_reset">إعادة تعيين</string>
-    <string name="carrier_persistent">نجحت الكتابة الدائمة</string>
-    <string name="carrier_non_persistent">كتابة غير دائمة. ستُستعاد عند تشغيل Stellar.</string>
-    <string name="carrier_disclaimer">هذا يغطي CarrierConfig فقط (رمز دولة SIM / الاسم المعروض). لا يعيد كتابة SIM أو IMSI أو MCC/MNC، ولا يعدّل TikTok. لا يزال عميل TikTok الرسمي يحتاج مساراً شبكياً يعمل.</string>
+    <string name="carrier_reset">إزالة التغطية</string>
+    <string name="carrier_non_persistent">غير دائم؛ سيعيد Stellar الكتابة عند التشغيل.</string>
+    <string name="carrier_disclaimer">يغطي رمز الدولة والاسم المعروض فقط. لا يغيّر بطاقة SIM.</string>
+    <string name="carrier_status_active">نشط: %1$s</string>
+    <string name="carrier_sim_overlay">تغطية %1$s</string>
+    <string name="carrier_sim_current">الحالي %1$s</string>
+    <string name="carrier_no_sim">لا توجد شريحة SIM</string>
+    <string name="carrier_select_sim">اختر شريحة SIM</string>
 </resources>

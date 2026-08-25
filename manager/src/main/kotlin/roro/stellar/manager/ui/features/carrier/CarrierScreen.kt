@@ -20,7 +20,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -30,39 +29,34 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import roro.stellar.manager.R
 import roro.stellar.manager.carrier.CarrierPresets
-import roro.stellar.manager.ui.navigation.components.StandardLargeTopAppBar
-import roro.stellar.manager.ui.navigation.components.createTopAppBarScrollBehavior
+import roro.stellar.manager.carrier.CountryPreset
+import roro.stellar.manager.ui.navigation.components.FixedTopAppBar
 import roro.stellar.manager.ui.theme.AppSpacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarrierScreen(
-    topAppBarState: TopAppBarState,
     viewModel: CarrierViewModel = viewModel()
 ) {
-    val scrollBehavior = createTopAppBarScrollBehavior(topAppBarState)
     val state by viewModel.state.collectAsState()
     val selectedSim = state.sims.firstOrNull { it.subId == state.selectedSubId }
     val carriers = CarrierPresets.carriersFor(state.selectedCountry)
+    val otherLabel = stringResource(R.string.carrier_country_other)
+    val countries = remember(otherLabel) {
+        CarrierPresets.countries + CountryPreset(CUSTOM_COUNTRY_CODE, otherLabel)
+    }
 
     LaunchedEffect(Unit) { viewModel.refresh() }
 
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier.fillMaxSize(),
         topBar = {
-            StandardLargeTopAppBar(
-                title = stringResource(R.string.nav_carrier),
-                scrollBehavior = scrollBehavior
-            )
+            FixedTopAppBar(title = stringResource(R.string.nav_carrier))
         }
     ) { paddingValues ->
         LazyColumn(
@@ -79,20 +73,16 @@ fun CarrierScreen(
                 item { LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) }
             }
 
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (!state.serviceRunning || state.error.isNotEmpty()) {
+                item {
                     Text(
-                        if (state.serviceRunning) {
-                            stringResource(R.string.carrier_service_ready)
-                        } else {
+                        if (!state.serviceRunning) {
                             stringResource(R.string.carrier_service_missing)
+                        } else {
+                            state.error
                         },
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
+                        color = MaterialTheme.colorScheme.error
                     )
-                    if (state.error.isNotEmpty()) {
-                        Text(state.error, color = MaterialTheme.colorScheme.error)
-                    }
                 }
             }
 
@@ -104,54 +94,65 @@ fun CarrierScreen(
                     optionText = ::simLabel,
                     onSelect = { viewModel.selectSim(it.subId) },
                     enabled = state.sims.isNotEmpty(),
-                    supportingText = selectedSim?.let(::simDetails)
+                    supportingText = selectedSim?.let { sim ->
+                        val iso = sim.overrideIso.ifEmpty { sim.runtimeIso.ifEmpty { sim.simIso } }
+                        if (sim.overrideIso.isNotEmpty()) {
+                            stringResource(R.string.carrier_sim_overlay, iso)
+                        } else if (iso.isNotEmpty()) {
+                            stringResource(R.string.carrier_sim_current, iso)
+                        } else {
+                            null
+                        }
+                    }
                 )
             }
 
             item {
                 DropdownField(
                     label = stringResource(R.string.carrier_section_country),
-                    selectedText = CarrierPresets.countries
-                        .firstOrNull { !state.useCustomIso && it.code == state.selectedCountry }
-                        ?.let { "${it.name} ${it.code}" }
-                        ?: state.selectedCountry,
-                    options = CarrierPresets.countries,
-                    optionText = { "${it.name} ${it.code}" },
+                    selectedText = when {
+                        state.useCustomIso -> state.customIso.ifEmpty { otherLabel }
+                        else -> CarrierPresets.countries
+                            .firstOrNull { it.code == state.selectedCountry }
+                            ?.let { "${it.name} ${it.code}" }
+                            ?: state.selectedCountry
+                    },
+                    options = countries,
+                    optionText = { if (it.code == CUSTOM_COUNTRY_CODE) it.name else "${it.name} ${it.code}" },
                     onSelect = { viewModel.selectCountry(it.code) }
                 )
             }
 
-            item {
-                OutlinedTextField(
-                    value = if (state.useCustomIso) state.customIso else state.selectedCountry,
-                    onValueChange = viewModel::setCustomIso,
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.carrier_custom_iso)) },
-                    singleLine = true
-                )
+            if (state.useCustomIso) {
+                item {
+                    OutlinedTextField(
+                        value = state.customIso,
+                        onValueChange = viewModel::setCustomIso,
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(stringResource(R.string.carrier_custom_iso)) },
+                        singleLine = true
+                    )
+                }
             }
 
-            item {
-                DropdownField(
-                    label = stringResource(R.string.carrier_section_name),
-                    selectedText = state.selectedCarrier,
-                    options = carriers,
-                    optionText = { it.name },
-                    onSelect = { viewModel.selectCarrier(it.name) },
-                    enabled = carriers.isNotEmpty()
-                )
+            if (carriers.isNotEmpty()) {
+                item {
+                    DropdownField(
+                        label = stringResource(R.string.carrier_section_name),
+                        selectedText = state.selectedCarrier,
+                        options = carriers,
+                        optionText = { it.name },
+                        onSelect = { viewModel.selectCarrier(it.name) }
+                    )
+                }
             }
 
             item {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(stringResource(R.string.carrier_auto_reapply), fontWeight = FontWeight.Medium)
-                        Text(
-                            stringResource(R.string.carrier_auto_reapply_hint),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Text(
+                        stringResource(R.string.carrier_auto_reapply),
+                        modifier = Modifier.weight(1f)
+                    )
                     Switch(checked = state.autoReapply, onCheckedChange = viewModel::setAutoReapply)
                 }
             }
@@ -178,20 +179,19 @@ fun CarrierScreen(
                 }
             }
 
-            if (state.lastMessage.isNotEmpty() || state.verifiedIso.isNotEmpty()) {
+            if (state.verifiedIso.isNotEmpty() || state.lastPersistent == false) {
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(stringResource(R.string.carrier_section_verify), fontWeight = FontWeight.Medium)
-                        if (state.lastMessage.isNotEmpty()) Text(state.lastMessage)
-                        if (state.lastStrategy.isNotEmpty()) Text("策略: ${state.lastStrategy}")
-                        state.lastPersistent?.let {
+                        if (state.verifiedIso.isNotEmpty()) {
+                            Text(stringResource(R.string.carrier_status_active, state.verifiedIso))
+                        }
+                        if (state.lastPersistent == false) {
                             Text(
-                                if (it) stringResource(R.string.carrier_persistent)
-                                else stringResource(R.string.carrier_non_persistent)
+                                stringResource(R.string.carrier_non_persistent),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Text("getSimCountryIso: ${state.verifiedIso.ifEmpty { "-" }}")
-                        Text("MCC/MNC: ${state.verifiedOperator.ifEmpty { "-" }}")
                     }
                 }
             }
@@ -209,15 +209,6 @@ fun CarrierScreen(
 
 private fun simLabel(sim: SimItem) =
     "SIM ${sim.slot}  ·  ${sim.displayName.ifEmpty { "subId ${sim.subId}" }}"
-
-private fun simDetails(sim: SimItem): String {
-    val override = buildString {
-        append("覆盖 ISO ${sim.overrideIso.ifEmpty { "-" }}")
-        if (sim.overrideName.isNotEmpty()) append("  ·  ${sim.overrideName}")
-        append("  ·  运行时 ${sim.runtimeIso.ifEmpty { "-" }}")
-    }
-    return "MCC/MNC ${sim.mccMnc.ifEmpty { "-" }}  ·  SIM ISO ${sim.simIso.ifEmpty { "-" }}\n$override"
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

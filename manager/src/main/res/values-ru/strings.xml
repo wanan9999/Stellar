@@ -363,18 +363,20 @@
 
     <string name="logs_app_not_running">Приложение не запускалось за время этой сессии сервиса, журналы недоступны.</string>
 
-    <string name="carrier_service_ready">Сервис Stellar запущен. Запись CarrierConfig выполняется через встроенный UserService.</string>
-    <string name="carrier_service_missing">Сервис Stellar не запущен. Сначала выполните сопряжение ADB или запуск с Root.</string>
-    <string name="carrier_section_sim">SIM-карты</string>
-    <string name="carrier_section_country">Код страны</string>
-    <string name="carrier_section_name">Имя оператора</string>
-    <string name="carrier_section_verify">Проверка</string>
-    <string name="carrier_custom_iso">Свой ISO (2 буквы)</string>
-    <string name="carrier_auto_reapply">Повторять при запуске Stellar</string>
-    <string name="carrier_auto_reapply_hint">Нужно на Android 16, когда разрешена только непостоянная запись.</string>
+    <string name="carrier_service_missing">Сначала запустите Stellar (ADB или Root).</string>
+    <string name="carrier_section_sim">SIM</string>
+    <string name="carrier_section_country">Страна</string>
+    <string name="carrier_section_name">Оператор</string>
+    <string name="carrier_country_other">Другое</string>
+    <string name="carrier_custom_iso">ISO (2 буквы)</string>
+    <string name="carrier_auto_reapply">Повторять при запуске</string>
     <string name="carrier_apply">Применить</string>
-    <string name="carrier_reset">Сбросить</string>
-    <string name="carrier_persistent">Постоянная запись выполнена</string>
-    <string name="carrier_non_persistent">Непостоянная запись. Она будет восстановлена при запуске Stellar.</string>
-    <string name="carrier_disclaimer">Это только накладывает CarrierConfig (ISO страны SIM / отображаемое имя). SIM, IMSI и MCC/MNC не переписываются, TikTok не изменяется. Официальному клиенту TikTok по-прежнему нужен рабочий сетевой путь.</string>
+    <string name="carrier_reset">Снять перекрытие</string>
+    <string name="carrier_non_persistent">Не сохраняется; Stellar запишет снова при запуске.</string>
+    <string name="carrier_disclaimer">Меняет только код страны и имя. Сама SIM не изменяется.</string>
+    <string name="carrier_status_active">Действует: %1$s</string>
+    <string name="carrier_sim_overlay">Перекрытие %1$s</string>
+    <string name="carrier_sim_current">Сейчас %1$s</string>
+    <string name="carrier_no_sim">SIM не обнаружена</string>
+    <string name="carrier_select_sim">Выберите SIM</string>
 </resources>

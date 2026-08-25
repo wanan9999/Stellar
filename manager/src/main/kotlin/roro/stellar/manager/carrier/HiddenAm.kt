@@ -5,12 +5,15 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import org.lsposed.hiddenapibypass.HiddenApiBypass
+import roro.stellar.Stellar
+import roro.stellar.StellarBinderWrapper
 
 internal object HiddenAm {
     fun activityManager(): Any {
         val sm = Class.forName("android.os.ServiceManager")
-        val binder = sm.getMethod("getService", String::class.java)
+        val raw = sm.getMethod("getService", String::class.java)
             .invoke(null, "activity") as IBinder
+        val binder = if (Stellar.pingBinder()) StellarBinderWrapper(raw) else raw
         val stub = Class.forName("android.app.IActivityManager\$Stub")
         return stub.getMethod("asInterface", IBinder::class.java).invoke(null, binder)!!
     }
@@ -45,10 +48,6 @@ internal object HiddenAm {
         flags: Int,
         arguments: Bundle
     ): Boolean {
-        val connection = Class.forName("android.app.UiAutomationConnection")
-            .getDeclaredConstructor()
-            .apply { isAccessible = true }
-            .newInstance()
         val method = am.javaClass.methods.first {
             it.name == "startInstrumentation" && it.parameterCount == 8
         }
@@ -59,7 +58,7 @@ internal object HiddenAm {
             flags,
             arguments,
             null,
-            connection,
+            null,
             0,
             null
         )
