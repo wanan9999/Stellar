@@ -40,6 +40,9 @@
 
 -keep class roro.stellar.manager.carrier.PrivilegedProcess { *; }
 -keepnames class roro.stellar.manager.carrier.** { *; }
+-keep class roro.stellar.manager.location.LocationMockService { *; }
+-keep class org.osmdroid.** { *; }
+-dontwarn org.osmdroid.**
 
 # Keep StellarDaemon for app_process
 -keep class roro.stellar.server.daemon.StellarDaemon {

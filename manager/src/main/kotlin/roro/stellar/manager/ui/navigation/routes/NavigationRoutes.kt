@@ -2,14 +2,14 @@ package roro.stellar.manager.ui.navigation.routes
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.SimCard
 import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.SimCard
 import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.ui.graphics.vector.ImageVector
 import roro.stellar.manager.R
@@ -34,11 +34,11 @@ enum class MainScreen(
         iconFilled = Icons.Filled.Apps
     ),
 
-    Carrier(
-        route = "carrier_graph",
-        labelRes = R.string.nav_carrier,
-        icon = Icons.Outlined.SimCard,
-        iconFilled = Icons.Filled.SimCard
+    Tools(
+        route = "tools_graph",
+        labelRes = R.string.nav_tools,
+        icon = Icons.Outlined.Build,
+        iconFilled = Icons.Filled.Build
     ),
 
     Terminal(

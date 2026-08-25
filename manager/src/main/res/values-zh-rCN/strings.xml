@@ -4,7 +4,7 @@
     <!-- Navigation -->
     <string name="nav_home">启动</string>
     <string name="nav_apps">授权应用</string>
-    <string name="nav_carrier">SIM</string>
+    <string name="nav_tools">工具</string>
     <string name="nav_terminal">命令</string>
     <string name="nav_settings">设置</string>
 
@@ -362,7 +362,13 @@
 
     <string name="logs_app_not_running">该应用在本次服务启动期间未运行，无可用日志。</string>
 
-    <string name="carrier_service_missing">请先启动 Stellar（ADB 或 Root）</string>
+    <string name="tools_service_missing">请先启动 Stellar（ADB 或 Root）</string>
+    <string name="tool_sim">SIM 地区</string>
+    <string name="tool_location">定位</string>
+    <string name="tool_sim_idle">未覆盖</string>
+    <string name="tool_location_idle">未模拟</string>
+    <string name="tool_location_active">模拟中 · %1$s</string>
+
     <string name="carrier_section_sim">SIM 卡</string>
     <string name="carrier_section_country">国家</string>
     <string name="carrier_section_name">运营商</string>
@@ -378,4 +384,28 @@
     <string name="carrier_sim_current">当前 %1$s</string>
     <string name="carrier_no_sim">没有检测到 SIM</string>
     <string name="carrier_select_sim">请选择 SIM 卡</string>
+
+    <string name="location_start">开始模拟</string>
+    <string name="location_stop">停止模拟</string>
+    <string name="location_search">搜索地点或粘贴坐标</string>
+    <string name="location_searching">正在搜索…</string>
+    <string name="location_save_favorite">收藏地点</string>
+    <string name="location_favorite_name">名称</string>
+    <string name="location_delete_favorite">删除这个收藏？</string>
+    <string name="location_disclaimer">系统里的地图、天气、打车都会看到这个位置。</string>
+    <string name="location_status_active">正在模拟 · %1$s</string>
+    <string name="location_custom">自定义</string>
+    <string name="location_permission_needed">需要定位权限</string>
+    <string name="location_grant_permission">授予定位权限</string>
+    <string name="location_mock_failed">无法将本应用设为模拟位置应用</string>
+    <string name="location_inject_failed">无法写入模拟位置</string>
+    <string name="location_channel_name">模拟定位</string>
+    <string name="location_notification">正在模拟 · %1$s</string>
+    <string name="location_notification_generic">正在模拟位置</string>
+    <string name="location_city_beijing">北京</string>
+    <string name="location_city_shanghai">上海</string>
+    <string name="location_city_hongkong">香港</string>
+    <string name="location_city_taipei">台北</string>
+    <string name="location_city_tokyo">东京</string>
+    <string name="location_city_newyork">纽约</string>
 </resources>

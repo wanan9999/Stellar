@@ -5,7 +5,7 @@
     <!-- Navigation -->
     <string name="nav_home">Start</string>
     <string name="nav_apps">Apps</string>
-    <string name="nav_carrier">SIM</string>
+    <string name="nav_tools">Tools</string>
     <string name="nav_terminal">Terminal</string>
     <string name="nav_settings">Settings</string>
 
@@ -363,8 +363,15 @@
 
     <string name="logs_app_not_running">App was not running during this service session, no logs available.</string>
 
+    <!-- Tools -->
+    <string name="tools_service_missing">Start Stellar first (ADB or Root).</string>
+    <string name="tool_sim">SIM region</string>
+    <string name="tool_location">Location</string>
+    <string name="tool_sim_idle">No overlay</string>
+    <string name="tool_location_idle">Not mocking</string>
+    <string name="tool_location_active">Mocking · %1$s</string>
+
     <!-- Carrier overlay -->
-    <string name="carrier_service_missing">Start Stellar first (ADB or Root).</string>
     <string name="carrier_section_sim">SIM</string>
     <string name="carrier_section_country">Country</string>
     <string name="carrier_section_name">Carrier</string>
@@ -380,4 +387,29 @@
     <string name="carrier_sim_current">Current %1$s</string>
     <string name="carrier_no_sim">No SIM detected</string>
     <string name="carrier_select_sim">Select a SIM</string>
+
+    <!-- Location mock -->
+    <string name="location_start">Start mocking</string>
+    <string name="location_stop">Stop mocking</string>
+    <string name="location_search">Search a place or paste coordinates</string>
+    <string name="location_searching">Searching…</string>
+    <string name="location_save_favorite">Save place</string>
+    <string name="location_favorite_name">Name</string>
+    <string name="location_delete_favorite">Remove saved place?</string>
+    <string name="location_disclaimer">Maps, weather, and ride-hailing will all see this location.</string>
+    <string name="location_status_active">Mocking · %1$s</string>
+    <string name="location_custom">Custom</string>
+    <string name="location_permission_needed">Location permission is required.</string>
+    <string name="location_grant_permission">Allow location</string>
+    <string name="location_mock_failed">Could not set this app as the mock location provider.</string>
+    <string name="location_inject_failed">Could not inject a mock location.</string>
+    <string name="location_channel_name">Mock location</string>
+    <string name="location_notification">Mocking · %1$s</string>
+    <string name="location_notification_generic">Mocking location</string>
+    <string name="location_city_beijing">Beijing</string>
+    <string name="location_city_shanghai">Shanghai</string>
+    <string name="location_city_hongkong">Hong Kong</string>
+    <string name="location_city_taipei">Taipei</string>
+    <string name="location_city_tokyo">Tokyo</string>
+    <string name="location_city_newyork">New York</string>
 </resources>

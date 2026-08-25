@@ -21,12 +21,15 @@ enum class ThemeMode(val value: String) {
 enum class StartPage(val value: String) {
     HOME("home"),
     APPS("apps"),
-    CARRIER("carrier"),
+    TOOLS("tools"),
     TERMINAL("terminal"),
     SETTINGS("settings");
 
     companion object {
-        fun fromValue(value: String): StartPage = entries.find { it.value == value } ?: HOME
+        fun fromValue(value: String): StartPage = when (value) {
+            "carrier" -> TOOLS
+            else -> entries.find { it.value == value } ?: HOME
+        }
     }
 }
 
@@ -89,7 +92,7 @@ object ThemePreferences {
     fun getStartPageDisplayNameRes(page: StartPage): Int = when (page) {
         StartPage.HOME -> R.string.nav_home
         StartPage.APPS -> R.string.nav_apps
-        StartPage.CARRIER -> R.string.nav_carrier
+        StartPage.TOOLS -> R.string.nav_tools
         StartPage.TERMINAL -> R.string.nav_terminal
         StartPage.SETTINGS -> R.string.nav_settings
     }

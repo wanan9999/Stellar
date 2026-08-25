@@ -5,7 +5,13 @@
     tools:ignore="MissingLeanbackLauncher">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission
+        android:name="android.permission.ACCESS_MOCK_LOCATION"
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -26,7 +32,10 @@
         android:name="android.software.leanback"
         android:required="false" />
     <uses-feature
-        android:name="android.hardware.touchscreen"
+        android:name="android.hardware.location"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.location.gps"
         android:required="false" />
 
     <queries>
@@ -119,6 +128,11 @@
             android:name=".startup.service.SelfStarterService"
             android:enabled="true"
             android:exported="false" />
+
+        <service
+            android:name=".location.LocationMockService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
 
         <service
             android:name=".service.StellarAccessibilityService"

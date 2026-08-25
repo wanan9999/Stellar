@@ -44,15 +44,17 @@ import roro.stellar.manager.domain.apps.AppsViewModel
 import roro.stellar.manager.domain.apps.appsViewModel
 import roro.stellar.manager.ui.components.AdaptiveLayoutProvider
 import roro.stellar.manager.ui.features.apps.AppsScreen
-import roro.stellar.manager.ui.features.carrier.CarrierScreen
 import roro.stellar.manager.ui.features.home.HomeScreen
 import roro.stellar.manager.ui.features.home.HomeViewModel
 import roro.stellar.manager.ui.features.manager.ManagerActivity
 import roro.stellar.manager.ui.features.settings.SettingsScreen
 import roro.stellar.manager.ui.features.terminal.TerminalScreen
+import roro.stellar.manager.ui.features.tools.ToolCatalog
+import roro.stellar.manager.ui.features.tools.ToolsScreen
 import roro.stellar.manager.ui.navigation.components.StandardBottomNavigation
 import roro.stellar.manager.ui.navigation.components.StandardNavigationRail
 import roro.stellar.manager.ui.navigation.routes.MainScreen
+import roro.stellar.manager.ui.navigation.popToGraphStart
 import roro.stellar.manager.ui.navigation.safePopBackStack
 import roro.stellar.manager.ui.theme.StellarTheme
 import roro.stellar.manager.ui.theme.ThemePreferences
@@ -218,7 +220,7 @@ private fun MainScreenContent(
     val startScreen = when (startPage) {
         StartPage.HOME -> MainScreen.Home
         StartPage.APPS -> MainScreen.Apps
-        StartPage.CARRIER -> MainScreen.Carrier
+        StartPage.TOOLS -> MainScreen.Tools
         StartPage.TERMINAL -> MainScreen.Terminal
         StartPage.SETTINGS -> MainScreen.Settings
     }
@@ -248,7 +250,9 @@ private fun MainScreenContent(
     }
 
     val onNavigationItemClick: (Int) -> Unit = { index ->
-        if (selectedIndex != index) {
+        if (selectedIndex == index) {
+            navController.popToGraphStart()
+        } else {
             selectedIndex = index
             val route = MainScreen.entries[index].route
             navController.navigate(route) {
@@ -296,11 +300,16 @@ private fun MainScreenContent(
             }
 
             navigation(
-                startDestination = "carrier",
-                route = MainScreen.Carrier.route
+                startDestination = ToolCatalog.LIST,
+                route = MainScreen.Tools.route
             ) {
-                composable("carrier") {
-                    CarrierScreen()
+                composable(ToolCatalog.LIST) {
+                    ToolsScreen(onOpen = { route -> navController.navigate(route) })
+                }
+                ToolCatalog.all.forEach { spec ->
+                    composable(spec.route) {
+                        spec.content { navController.safePopBackStack() }
+                    }
                 }
             }
 

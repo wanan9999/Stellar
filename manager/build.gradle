@@ -221,4 +221,5 @@ dependencies {
     ksp managerLibs.roomCompiler
     implementation managerLibs.gson
     implementation managerLibs.workRuntimeKtx
+    implementation managerLibs.osmdroid
 }

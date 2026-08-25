@@ -7,7 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -41,6 +45,7 @@ import roro.stellar.manager.ui.theme.AppSpacing
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CarrierScreen(
+    onBack: (() -> Unit)? = null,
     viewModel: CarrierViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -57,7 +62,16 @@ fun CarrierScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            FixedTopAppBar(title = stringResource(R.string.nav_carrier))
+            FixedTopAppBar(
+                title = stringResource(R.string.tool_sim),
+                navigationIcon = {
+                    if (onBack != null) {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
+                        }
+                    }
+                }
+            )
         }
     ) { paddingValues ->
         LazyColumn(
@@ -78,7 +92,7 @@ fun CarrierScreen(
                 item {
                     Text(
                         if (!state.serviceRunning) {
-                            stringResource(R.string.carrier_service_missing)
+                            stringResource(R.string.tools_service_missing)
                         } else {
                             state.error
                         },

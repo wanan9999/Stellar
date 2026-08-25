@@ -63,7 +63,7 @@ shizuku/     → Shizuku 兼容层
 ### Manager 应用架构
 
 - UI：Jetpack Compose + Material Design 3，导航在 `ui/navigation/`
-- 底部导航页面（5个）：Home（服务状态）、Apps（授权管理）、Carrier（SIM 覆盖）、Terminal（终端）、Settings（设置）
+- 底部导航页面（5个）：Home（服务状态）、Apps（授权管理）、Tools（工具目录：SIM 覆盖 / 定位模拟）、Terminal（终端）、Settings（设置）
 - 二级页面：`ui/features/manager/` 下包含 Logs（服务日志）、Starter（启动器）、ManagerActivity
 - ADB 无线配对：`adb/` 包实现完整的 ADB 协议栈（配对、mDNS 发现、连接）
 - 数据层：`db/`（Room 数据库）、`model/ServiceStatus`、`domain/apps/AppsViewModel`
@@ -76,6 +76,7 @@ shizuku/     → Shizuku 兼容层
 - JNI 层：`src/main/jni/` 包含 starter（服务启动器）、chid（降权工具）、adb_pairing、rish（Shizuku 兼容 PTY，不是独立命令行应用）
 - 多语言：英语（默认）、简体中文（`values-zh-rCN`）
 - 运营商覆盖：管理器进程 Instrumentation + `UiAutomationConnection` + `startDelegate`；永远 `persistent=false`；状态只认官方配置键；跨重启靠 `CarrierStore` 再应用
+- 定位模拟：AppOps `android:mock_location` 指定本应用 + 前台服务同时注入 `gps` / `network` / `fused`；UI 在 `ui/features/tools` 目录下扩展
 
 ### Server 核心组件
 

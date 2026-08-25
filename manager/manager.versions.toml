@@ -22,6 +22,7 @@ capsule = "2.1.0"
 room = "2.7.1"
 gson = "2.13.1"
 work = "2.10.0"
+osmdroid = "6.1.20"
 
 [libraries]
 kotlinxCoroutinesCore = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
@@ -35,6 +36,7 @@ recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "r
 lifecycleViewmodelKtx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 lifecycleLivedataKtx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
 lifecycleViewmodelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+lifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 preferenceKtx = { module = "androidx.preference:preference-ktx", version.ref = "preferenceKtx" }
 coreSplashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 
@@ -63,10 +65,11 @@ roomKtx = { module = "androidx.room:room-ktx", version.ref = "room" }
 roomCompiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 workRuntimeKtx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+osmdroid = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroid" }
 
 [bundles]
 kotlinxCoroutines = ["kotlinxCoroutinesCore", "kotlinxCoroutinesAndroid"]
 core = ["appcompat", "browser", "coreKtx", "fragmentKtx", "recyclerview", "preferenceKtx", "coreSplashscreen"]
-lifecycle = ["lifecycleViewmodelKtx", "lifecycleLivedataKtx", "lifecycleViewmodelCompose"]
+lifecycle = ["lifecycleViewmodelKtx", "lifecycleLivedataKtx", "lifecycleViewmodelCompose", "lifecycleRuntimeCompose"]
 composeUi = ["composeUi", "composeUiToolingPreview", "composeMaterial3", "activityCompose", "composeMaterialIconsExtended", "composeRuntimeLivedata", "composeUiGraphics", "navigationCompose"]
 nativeCrypto = ["libcxx", "boringssl", "hiddenApiBypass", "bcpkix"]

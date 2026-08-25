@@ -47,7 +47,7 @@ class CarrierViewModel : ViewModel() {
             _state.update { it.copy(loading = true, error = "", serviceRunning = running) }
             if (!running) {
                 _state.update {
-                    it.copy(loading = false, error = application.getString(R.string.carrier_service_missing))
+                    it.copy(loading = false, error = application.getString(R.string.tools_service_missing))
                 }
                 return@launch
             }
