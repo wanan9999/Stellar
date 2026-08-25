@@ -2,6 +2,7 @@ package roro.stellar.manager.carrier
 
 import android.app.Instrumentation
 import android.os.Bundle
+import android.os.Looper
 import android.os.Parcel
 import android.os.Process
 import android.util.Log
@@ -11,33 +12,43 @@ class PrivilegedProcess : Instrumentation() {
         super.onCreate(arguments)
         val args = arguments ?: Bundle()
         val callback = args.getBinder(EXTRA_CALLBACK)
-        if (args.getInt(EXTRA_PID, -1) != Process.myPid()) {
+        val host = targetContext ?: context
+        if (host == null || args.getInt(EXTRA_PID, -1) != Process.myPid()) {
             reply(callback, false, "invalid apply pid", false)
-            finish(0, Bundle())
+            finishQuietly()
             return
         }
         val am = HiddenAm.activityManager()
         try {
-            HiddenAm.startDelegate(am, context.applicationInfo.uid)
+            HiddenAm.startDelegate(am, host.applicationInfo.uid)
             val subId = args.getInt(EXTRA_SUB_ID)
             val reset = args.getBoolean(EXTRA_RESET)
-            val persistent = if (reset) {
-                CarrierConfigWriter.applyWithPersistentFallback(context, subId, null)
+            val bundle = if (reset) {
+                null
             } else {
-                val bundle = CarrierOverlay.build(
+                CarrierOverlay.build(
                     args.getString(EXTRA_ISO),
                     args.getString(EXTRA_NAME)
                 )
-                CarrierConfigWriter.applyWithPersistentFallback(context, subId, bundle)
             }
-            reply(callback, true, "instrumentation", persistent)
+            CarrierConfigWriter.writeOverride(host, subId, bundle)
+            if (Looper.myLooper() != Looper.getMainLooper()) {
+                if (!CarrierConfigWriter.confirmOverride(host, subId, bundle)) {
+                    error("写入后系统未确认覆盖")
+                }
+            }
+            reply(callback, true, "instrumentation", false)
         } catch (e: Exception) {
             Log.e(TAG, "override failed", e)
             reply(callback, false, e.message ?: e.javaClass.simpleName, false)
         } finally {
             runCatching { HiddenAm.stopDelegate(am) }
         }
-        finish(0, Bundle())
+        finishQuietly()
+    }
+
+    private fun finishQuietly() {
+        runCatching { finish(0, Bundle()) }
     }
 
     private fun reply(callback: android.os.IBinder?, ok: Boolean, message: String, persistent: Boolean) {

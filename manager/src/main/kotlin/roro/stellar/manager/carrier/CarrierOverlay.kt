@@ -14,6 +14,9 @@ internal object CarrierOverlay {
             bundle.putBoolean(CarrierKeys.CARRIER_NAME_OVERRIDE, true)
             bundle.putString(CarrierKeys.CARRIER_NAME, name)
         }
+        if (!isEmpty(bundle)) {
+            bundle.putInt(CarrierKeys.MARKER, 1)
+        }
         return bundle
     }
 

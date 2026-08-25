@@ -23,21 +23,48 @@ internal object CarrierInstrument {
             putString(PrivilegedProcess.EXTRA_NAME, name)
             putBinder(PrivilegedProcess.EXTRA_CALLBACK, callback)
         }
-        val started = HiddenAm.startInstrumentation(
-            am,
-            ComponentName(application.packageName, PrivilegedProcess::class.java.name),
-            flags,
-            args
-        )
-        if (!started) error("startInstrumentation returned false")
+        val startError = runCatching {
+            if (!HiddenAm.startInstrumentation(
+                    am,
+                    ComponentName(application.packageName, PrivilegedProcess::class.java.name),
+                    flags,
+                    args
+                )
+            ) {
+                error("startInstrumentation returned false")
+            }
+        }.exceptionOrNull()
         if (!callback.latch.await(20, TimeUnit.SECONDS)) {
-            error("Instrumentation 超时")
+            throw startError ?: error("Instrumentation 超时")
         }
         if (!callback.ok) error(callback.message.ifEmpty { "Instrumentation 失败" })
+        val overlay = if (reset) null else CarrierOverlay.build(iso, name)
+        if (!CarrierConfigWriter.confirmOverride(application, subId, overlay)) {
+            val actual = CarrierConfigWriter.currentOverride(application, subId).first
+            error(
+                if (reset) "清除覆盖后系统仍返回 $actual"
+                else "写入后系统未读到覆盖 ${iso.orEmpty()}（当前 $actual）"
+            )
+        }
+        val (overrideIso, _) = CarrierConfigWriter.currentOverride(application, subId)
+        val store = CarrierStore(application)
+        if (reset) {
+            store.clear()
+        } else {
+            store.save(
+                StoredOverlay(
+                    subId = subId,
+                    iso = iso.orEmpty(),
+                    name = name.orEmpty(),
+                    autoReapply = store.load()?.autoReapply ?: true
+                )
+            )
+        }
         return Bundle().apply {
             putBoolean(CarrierKeys.OK, true)
             putString(CarrierKeys.STRATEGY, "instrumentation")
-            putBoolean(CarrierKeys.PERSISTENT, callback.persistent)
+            putBoolean(CarrierKeys.PERSISTENT, false)
+            putString(CarrierKeys.OVERRIDE_ISO, overrideIso)
             putString(CarrierKeys.MESSAGE, "已写入 (instrumentation)")
         }
     }

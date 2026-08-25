@@ -36,30 +36,34 @@ class CarrierUserService : ICarrierOverrideService.Stub {
         val result = mutableListOf<Bundle>()
         val subs = CarrierConfigWriter.activeSubscriptions(context)
         subs.forEach { info ->
-            val subId = info.subscriptionId
-            val (overrideIso, overrideName) = runCatching {
-                CarrierConfigWriter.currentOverride(context, subId)
-            }.getOrDefault("" to "")
-            result += Bundle().apply {
-                putInt(CarrierKeys.SLOT, info.simSlotIndex + 1)
-                putInt(CarrierKeys.SUB_ID, subId)
-                putString(CarrierKeys.DISPLAY_NAME, info.displayName?.toString().orEmpty())
-                putString(
-                    CarrierKeys.MCC_MNC,
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-                        info.mccString.orEmpty() + info.mncString.orEmpty()
-                    } else {
-                        @Suppress("DEPRECATION")
-                        "${info.mcc}${info.mnc}"
-                    }
-                )
-                putString(CarrierKeys.ISO, info.countryIso.orEmpty())
-                putString(CarrierKeys.OVERRIDE_ISO, overrideIso)
-                putString(CarrierKeys.OVERRIDE_NAME, overrideName)
-                putString(
-                    CarrierKeys.CARRIER,
-                    CarrierConfigWriter.simCountryIso(context, subId)
-                )
+            runCatching {
+                val subId = info.subscriptionId
+                val (overrideIso, overrideName) = runCatching {
+                    CarrierConfigWriter.currentOverride(context, subId)
+                }.getOrDefault("" to "")
+                result += Bundle().apply {
+                    putInt(CarrierKeys.SLOT, info.simSlotIndex + 1)
+                    putInt(CarrierKeys.SUB_ID, subId)
+                    putString(CarrierKeys.DISPLAY_NAME, info.displayName?.toString().orEmpty())
+                    putString(
+                        CarrierKeys.MCC_MNC,
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                            info.mccString.orEmpty() + info.mncString.orEmpty()
+                        } else {
+                            @Suppress("DEPRECATION")
+                            "${info.mcc}${info.mnc}"
+                        }
+                    )
+                    putString(CarrierKeys.ISO, info.countryIso.orEmpty())
+                    putString(CarrierKeys.OVERRIDE_ISO, overrideIso)
+                    putString(CarrierKeys.OVERRIDE_NAME, overrideName)
+                    putString(
+                        CarrierKeys.CARRIER,
+                        CarrierConfigWriter.simCountryIso(context, subId)
+                    )
+                }
+            }.onFailure { e ->
+                Log.w(TAG, "listSims skipped a subscription", e)
             }
         }
         return result
@@ -75,8 +79,14 @@ class CarrierUserService : ICarrierOverrideService.Stub {
         if (CarrierOverlay.isEmpty(bundle)) {
             return failure("没有可写入的覆盖项")
         }
-        val outcome = write(subId, bundle, reset = false)
-        if (outcome.getBoolean(CarrierKeys.OK) || outcome.getBoolean(CarrierKeys.NEED_INSTRUMENT)) {
+        val outcome = write(subId, bundle)
+        if (outcome.getBoolean(CarrierKeys.NEED_INSTRUMENT)) {
+            outcome.putInt(CarrierKeys.SUB_ID, subId)
+            outcome.putString(CarrierKeys.ISO, iso)
+            outcome.putString(CarrierKeys.CARRIER, name)
+            return outcome
+        }
+        if (outcome.getBoolean(CarrierKeys.OK)) {
             store.save(
                 StoredOverlay(
                     subId = subId,
@@ -88,20 +98,20 @@ class CarrierUserService : ICarrierOverrideService.Stub {
             outcome.putInt(CarrierKeys.SUB_ID, subId)
             outcome.putString(CarrierKeys.ISO, iso)
             outcome.putString(CarrierKeys.CARRIER, name)
-        }
-        if (outcome.getBoolean(CarrierKeys.OK)) {
             verifyInto(outcome, subId, iso)
         }
         return outcome
     }
 
     override fun resetOverride(subId: Int): Bundle {
-        val outcome = write(subId, null, reset = true)
-        if (outcome.getBoolean(CarrierKeys.OK) || outcome.getBoolean(CarrierKeys.NEED_INSTRUMENT)) {
-            store.clear()
+        val outcome = write(subId, null)
+        if (outcome.getBoolean(CarrierKeys.NEED_INSTRUMENT)) {
             outcome.putInt(CarrierKeys.SUB_ID, subId)
+            return outcome
         }
         if (outcome.getBoolean(CarrierKeys.OK)) {
+            store.clear()
+            outcome.putInt(CarrierKeys.SUB_ID, subId)
             verifyInto(outcome, subId, null)
         }
         return outcome
@@ -136,10 +146,15 @@ class CarrierUserService : ICarrierOverrideService.Stub {
         }
     }
 
-    private fun write(subId: Int, bundle: android.os.PersistableBundle?, reset: Boolean): Bundle {
+    private fun write(subId: Int, bundle: android.os.PersistableBundle?): Bundle {
         val direct = runCatching {
-            val persistent = CarrierConfigWriter.applyWithPersistentFallback(context, subId, bundle)
-            success("direct", persistent)
+            val persistent = CarrierConfigWriter.applyAndConfirm(context, subId, bundle)
+            success("direct", persistent).apply {
+                putString(
+                    CarrierKeys.OVERRIDE_ISO,
+                    CarrierConfigWriter.currentOverride(context, subId).first
+                )
+            }
         }
         if (direct.isSuccess) return direct.getOrThrow()
         val error = direct.exceptionOrNull()

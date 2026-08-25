@@ -73,7 +73,12 @@ class CarrierViewModel : ViewModel() {
                         sims = sims,
                         selectedSubId = selected,
                         autoReapply = peek.getBoolean(CarrierKeys.AUTO_REAPPLY, true),
-                        verifiedIso = peek.getString(CarrierKeys.VERIFIED_ISO).orEmpty(),
+                        verifiedIso = peek.getString(CarrierKeys.OVERRIDE_ISO).orEmpty(),
+                        lastPersistent = if (peek.getString(CarrierKeys.OVERRIDE_ISO).isNullOrEmpty()) {
+                            null
+                        } else {
+                            false
+                        },
                         error = if (sims.isEmpty()) application.getString(R.string.carrier_no_sim) else ""
                     )
                 }
@@ -143,12 +148,14 @@ class CarrierViewModel : ViewModel() {
                 _state.update {
                     it.copy(
                         loading = false,
-                        lastPersistent = if (result.containsKey(CarrierKeys.PERSISTENT)) {
+                        lastPersistent = if (result.getBoolean(CarrierKeys.OK)) {
                             result.getBoolean(CarrierKeys.PERSISTENT)
                         } else {
                             null
                         },
-                        verifiedIso = result.getString(CarrierKeys.VERIFIED_ISO).orEmpty(),
+                        verifiedIso = result.getString(CarrierKeys.OVERRIDE_ISO).orEmpty().ifEmpty {
+                            if (result.getBoolean(CarrierKeys.OK)) iso.trim().lowercase() else ""
+                        },
                         error = if (result.getBoolean(CarrierKeys.OK)) "" else result.getString(CarrierKeys.MESSAGE).orEmpty()
                     )
                 }
@@ -174,7 +181,7 @@ class CarrierViewModel : ViewModel() {
                     it.copy(
                         loading = false,
                         lastPersistent = null,
-                        verifiedIso = result.getString(CarrierKeys.VERIFIED_ISO).orEmpty(),
+                        verifiedIso = result.getString(CarrierKeys.OVERRIDE_ISO).orEmpty(),
                         error = if (result.getBoolean(CarrierKeys.OK)) "" else result.getString(CarrierKeys.MESSAGE).orEmpty()
                     )
                 }
@@ -191,7 +198,7 @@ class CarrierViewModel : ViewModel() {
                 val peek = CarrierClient.ensure().peek(subId)
                 _state.update {
                     it.copy(
-                        verifiedIso = peek.getString(CarrierKeys.VERIFIED_ISO).orEmpty(),
+                        verifiedIso = peek.getString(CarrierKeys.OVERRIDE_ISO).orEmpty(),
                         autoReapply = peek.getBoolean(CarrierKeys.AUTO_REAPPLY, it.autoReapply)
                     )
                 }

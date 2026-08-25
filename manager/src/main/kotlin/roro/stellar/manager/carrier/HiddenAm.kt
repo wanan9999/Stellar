@@ -31,15 +31,23 @@ internal object HiddenAm {
     }
 
     fun startDelegate(am: Any, uid: Int) {
-        am.javaClass.methods.first {
-            it.name == "startDelegateShellPermissionIdentity" && it.parameterCount == 2
-        }.invoke(am, uid, null)
+        invoke(
+            am.javaClass.methods.first {
+                it.name == "startDelegateShellPermissionIdentity" && it.parameterCount == 2
+            },
+            am,
+            uid,
+            null
+        )
     }
 
     fun stopDelegate(am: Any) {
-        am.javaClass.methods.first {
-            it.name == "stopDelegateShellPermissionIdentity" && it.parameterCount == 0
-        }.invoke(am)
+        invoke(
+            am.javaClass.methods.first {
+                it.name == "stopDelegateShellPermissionIdentity" && it.parameterCount == 0
+            },
+            am
+        )
     }
 
     fun startInstrumentation(
@@ -51,7 +59,8 @@ internal object HiddenAm {
         val method = am.javaClass.methods.first {
             it.name == "startInstrumentation" && it.parameterCount == 8
         }
-        val result = method.invoke(
+        val result = invoke(
+            method,
             am,
             name,
             null,
@@ -63,6 +72,14 @@ internal object HiddenAm {
             null
         )
         return result as? Boolean ?: true
+    }
+
+    private fun invoke(method: java.lang.reflect.Method, target: Any, vararg args: Any?): Any? {
+        return try {
+            method.invoke(target, *args)
+        } catch (e: java.lang.reflect.InvocationTargetException) {
+            throw e.targetException ?: e
+        }
     }
 
     private fun intConstant(clazz: Class<*>, name: String): Int? {
