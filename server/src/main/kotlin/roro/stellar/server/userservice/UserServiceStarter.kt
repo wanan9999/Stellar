@@ -13,6 +13,7 @@ import android.os.Looper
 import android.os.UserHandle
 import android.os.UserHandleHidden
 import android.util.Log
+import java.lang.reflect.InvocationTargetException
 import com.stellar.api.BinderContainer
 import roro.stellar.shared.typedParcelable
 import dev.rikka.tools.refine.Refine
@@ -102,6 +103,7 @@ object UserServiceStarter {
 
         return try {
             val activityThread = ActivityThread.systemMain()
+            initializeMainlineModules()
             val systemContext = activityThread.systemContext
             DdmHandleAppName.setAppName(debugName ?: "$packageName:user_service", userId)
             val userHandle: UserHandle = Refine.unsafeCast(
@@ -160,6 +162,31 @@ object UserServiceStarter {
             Log.e(TAG, "创建 UserService 失败", e)
             null
         }
+    }
+
+    /**
+     * `systemMain()` 不会走 App 进程的 handleBindApplication，
+     * Android 12+ 的 TelephonyServiceManager 因此一直为 null。
+     */
+    private fun initializeMainlineModules() {
+        try {
+            ActivityThread::class.java.getMethod("initializeMainlineModules").invoke(null)
+            return
+        } catch (e: InvocationTargetException) {
+            if (e.targetException?.message?.contains("called twice") == true) return
+            Log.w(TAG, "initializeMainlineModules", e.targetException)
+        } catch (_: NoSuchMethodException) {
+            // Android 12 早期尚未抽出该方法
+        } catch (e: Throwable) {
+            Log.w(TAG, "initializeMainlineModules", e)
+        }
+        runCatching {
+            val initializer = Class.forName("android.telephony.TelephonyFrameworkInitializer")
+            if (initializer.getMethod("getTelephonyServiceManager").invoke(null) != null) return
+            val managerClass = Class.forName("android.os.TelephonyServiceManager")
+            initializer.getMethod("setTelephonyServiceManager", managerClass)
+                .invoke(null, managerClass.getDeclaredConstructor().newInstance())
+        }.onFailure { Log.w(TAG, "TelephonyServiceManager 初始化失败", it) }
     }
 
     private fun sendBinderToServer(
